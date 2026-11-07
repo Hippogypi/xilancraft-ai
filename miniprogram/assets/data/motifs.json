@@ -1,0 +1,22 @@
+[
+  {
+    "id": "motif-gou-001",
+    "name": "四十八勾",
+    "category": "traditional",
+    "image": "",
+    "meaning": "以中心对称的勾状折线层层向外放射，菱形骨架环环相扣，象征团结与生生不息，是西兰卡普中最负盛名的几何纹样。",
+    "keywords": ["四十八勾", "菱形骨架", "对称放射", "西兰卡普"],
+    "source": "土家织锦传统纹样 · 比赛演示占位素材（正式图像与来源阶段4登记）",
+    "referenceAllowed": true
+  },
+  {
+    "id": "motif-bird-001",
+    "name": "阳雀花 · 几何转译",
+    "category": "modern",
+    "image": "",
+    "meaning": "将传统阳雀花纹样解构为三角与菱形色块，以现代节奏重新排布，寓意春讯与新生的当代表达。",
+    "keywords": ["阳雀花", "符号解构", "几何重组", "新中式"],
+    "source": "设计转译演示作品 · 比赛演示占位素材",
+    "referenceAllowed": true
+  }
+]

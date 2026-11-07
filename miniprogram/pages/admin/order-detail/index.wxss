@@ -1,0 +1,107 @@
+.od__no-wrap {
+  margin-bottom: 20rpx;
+}
+.od__no {
+  font-size: 38rpx;
+  font-weight: 700;
+  letter-spacing: 2rpx;
+  color: var(--xl-gold);
+}
+.od__row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+.od__row--last {
+  margin-bottom: 0;
+}
+.od__label {
+  font-size: 26rpx;
+  color: var(--xl-text-sub);
+}
+.od__value {
+  font-size: 26rpx;
+  color: var(--xl-text);
+}
+
+/* 纹样快照占位 */
+.od__snapshot {
+  height: 320rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid var(--xl-gold-40);
+  background-color: var(--xl-bg-card-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.od__snapshot-core {
+  width: 72rpx;
+  height: 72rpx;
+  border: 3rpx solid var(--xl-gold-40);
+  border-radius: 8rpx;
+  transform: rotate(45deg);
+  margin-bottom: 20rpx;
+  position: relative;
+}
+.od__snapshot-core::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 24rpx;
+  height: 24rpx;
+  margin: -12rpx 0 0 -12rpx;
+  background: var(--xl-gold-40);
+  border-radius: 4rpx;
+}
+.od__snapshot-text {
+  font-size: 22rpx;
+  color: var(--xl-text-faint);
+}
+
+/* 状态流转步骤条 */
+.od__flow {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+.od__flow-step {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.od__flow-dot {
+  width: 20rpx;
+  height: 20rpx;
+  border: 2rpx solid var(--xl-text-faint);
+  border-radius: 50%;
+  box-sizing: border-box;
+}
+.od__flow-step--on .od__flow-dot {
+  border-color: var(--xl-gold);
+  background: var(--xl-gold);
+}
+.od__flow-name {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: var(--xl-text-faint);
+}
+.od__flow-step--on .od__flow-name {
+  color: var(--xl-gold);
+}
+.od__flow-line {
+  flex: 1;
+  height: 2rpx;
+  background: var(--xl-text-faint);
+  opacity: 0.4;
+  margin: 0 12rpx 30rpx;
+}
+.od__flow-line--on {
+  background: var(--xl-gold);
+  opacity: 1;
+}
+.od__done {
+  display: block;
+  text-align: center;
+}

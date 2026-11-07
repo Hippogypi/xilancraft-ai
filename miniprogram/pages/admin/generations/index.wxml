@@ -1,0 +1,74 @@
+<view class="xl-page">
+  <view class="xl-admin-badge">管理端</view>
+  <view class="xl-page-head">
+    <text class="xl-page-title">生成记录</text>
+    <text class="xl-text-faint">历史任务</text>
+  </view>
+
+  <!-- 状态筛选 chips -->
+  <xl-chips options="{{filters}}" value="{{filter}}" bind:change="onFilterChange"></xl-chips>
+
+  <!-- TODO(阶段3): api.get('/api/admin/generations?status=&page=&pageSize=') 分页拉取 -->
+  <block wx:if="{{list.length}}">
+    <view class="xl-card gen" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onItemTap">
+      <view class="gen__thumb xl-weave">
+        <image wx:if="{{item.imageUrl}}" class="gen__img" src="{{item.imageUrl}}" mode="aspectFill"></image>
+        <view wx:else class="gen__thumb-ph"></view>
+      </view>
+      <view class="gen__info">
+        <text class="gen__time">{{item.createdAt}}</text>
+        <text class="gen__model">{{item.modelId}}</text>
+        <text class="gen__prompt">{{item.prompt}}</text>
+      </view>
+      <view class="gen__side">
+        <xl-status-dot
+          type="{{item.status === 'succeeded' ? 'success' : item.status === 'failed' ? 'failed' : 'running'}}"
+          label="{{item.status === 'succeeded' ? '成功' : item.status === 'failed' ? '失败' : '进行中'}}"
+        ></xl-status-dot>
+        <text class="xl-text-faint">详情 ›</text>
+      </view>
+    </view>
+  </block>
+  <xl-empty wx:else text="暂无生成记录"></xl-empty>
+
+  <!-- 详情半屏弹层：提示词全文 / 错误码 -->
+  <xl-half-screen show="{{showDetail}}" title="任务详情" bind:close="onDetailClose">
+    <view wx:if="{{detail}}" class="gdetail">
+      <view class="gdetail__row">
+        <text class="gdetail__label">任务 ID</text>
+        <text class="gdetail__value">{{detail.id}}</text>
+      </view>
+      <view class="gdetail__row">
+        <text class="gdetail__label">时间</text>
+        <text class="gdetail__value">{{detail.createdAt}}</text>
+      </view>
+      <view class="gdetail__row">
+        <text class="gdetail__label">模型</text>
+        <text class="gdetail__value">{{detail.modelId}}</text>
+      </view>
+      <view class="gdetail__row">
+        <text class="gdetail__label">状态</text>
+        <xl-status-dot
+          type="{{detail.status === 'succeeded' ? 'success' : detail.status === 'failed' ? 'failed' : 'running'}}"
+          label="{{detail.statusText}}"
+        ></xl-status-dot>
+      </view>
+      <view class="gdetail__section">
+        <text class="gdetail__label">提示词全文</text>
+        <text class="gdetail__prompt">{{detail.prompt || '（暂无）'}}</text>
+      </view>
+      <view wx:if="{{detail.status === 'failed'}}" class="gdetail__section">
+        <text class="gdetail__label">错误码</text>
+        <text class="gdetail__err">{{detail.errorCode || '—'}} {{detail.errorMessage || ''}}</text>
+      </view>
+      <view class="gdetail__section">
+        <view class="gdetail__imgwrap xl-weave">
+          <image wx:if="{{detail.imageUrl}}" class="gdetail__img" src="{{detail.imageUrl}}" mode="aspectFit"></image>
+          <text wx:else class="gdetail__img-ph">结果图占位</text>
+        </view>
+      </view>
+    </view>
+  </xl-half-screen>
+
+  <view class="xl-demo-note">比赛演示 · 记录由服务端持久化</view>
+</view>

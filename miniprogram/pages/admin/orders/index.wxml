@@ -1,0 +1,29 @@
+<view class="xl-page">
+  <view class="xl-admin-badge">管理端</view>
+  <view class="xl-page-head">
+    <text class="xl-page-title">订单管理</text>
+    <text class="xl-text-faint">模拟订单</text>
+  </view>
+
+  <view class="xl-demo-note order-demo-tip">比赛演示 · 以下为占位模拟数据，阶段 3 接 GET /api/admin/orders</view>
+
+  <!-- 订单列表：订单号 / 款式 / 尺码 / 状态 tag -->
+  <block wx:if="{{list.length}}">
+    <view class="xl-card order" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="goDetail">
+      <view class="order__row1">
+        <text class="order__no">{{item.orderNo}}</text>
+        <view class="xl-tag {{statusTagClass[item.status]}}">{{statusText[item.status]}}</view>
+      </view>
+      <view class="order__meta">
+        <text>{{item.customer}} · {{item.garment}} · {{item.size}} 码 × {{item.quantity}}</text>
+      </view>
+      <view class="order__foot">
+        <text class="xl-text-faint">{{item.createdAt}}</text>
+        <text class="order__more">详情 ›</text>
+      </view>
+    </view>
+  </block>
+  <xl-empty wx:else text="暂无订单"></xl-empty>
+
+  <view class="xl-demo-note">待处理 → 设计确认 → 已完成（单向流转）</view>
+</view>

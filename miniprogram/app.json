@@ -1,0 +1,49 @@
+{
+  "pages": [
+    "pages/heritage/index",
+    "pages/inspiration/index",
+    "pages/workshop/index",
+    "pages/customization/index",
+    "pages/admin/login/index",
+    "pages/admin/home/index",
+    "pages/admin/providers/index",
+    "pages/admin/providers-edit/index",
+    "pages/admin/generations/index",
+    "pages/admin/orders/index",
+    "pages/admin/order-detail/index"
+  ],
+  "window": {
+    "navigationBarBackgroundColor": "#16120E",
+    "navigationBarTextStyle": "white",
+    "navigationBarTitleText": "西兰卡普AI定制工坊",
+    "backgroundColor": "#16120E",
+    "backgroundTextStyle": "dark"
+  },
+  "tabBar": {
+    "color": "#B9AC97",
+    "selectedColor": "#C9A063",
+    "backgroundColor": "#1B1610",
+    "borderStyle": "black",
+    "list": [
+      {
+        "pagePath": "pages/heritage/index",
+        "text": "非遗导览"
+      },
+      {
+        "pagePath": "pages/inspiration/index",
+        "text": "灵感素材"
+      },
+      {
+        "pagePath": "pages/workshop/index",
+        "text": "定制工坊"
+      },
+      {
+        "pagePath": "pages/customization/index",
+        "text": "服装定制"
+      }
+    ]
+  },
+  "sitemapLocation": "sitemap.json",
+  "style": "v2",
+  "lazyCodeLoading": "requiredComponents"
+}

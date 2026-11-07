@@ -1,0 +1,40 @@
+<view class="xl-page">
+  <view class="xl-admin-badge">管理端</view>
+  <view class="xl-page-head">
+    <text class="xl-page-title">AI 接口配置</text>
+    <text class="xl-text-faint">Provider 管理</text>
+  </view>
+
+  <text class="xl-text-sub prov-tip">配置生图服务（Provider），激活后用户端生成将使用该服务；同一时刻仅一个激活项。</text>
+
+  <!-- TODO(阶段3): onLoad 调 api.get('/api/admin/providers') 填充 list -->
+  <block wx:if="{{list.length}}">
+    <view class="xl-card prov" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="goEdit">
+      <view class="prov__row1">
+        <text class="prov__name">{{item.name}}</text>
+        <view wx:if="{{item.active}}" class="xl-tag xl-tag--gold">激活</view>
+      </view>
+      <view class="prov__meta">
+        <text class="prov__type">{{item.adapter_type}}</text>
+        <text class="prov__model">{{item.model_id}}</text>
+      </view>
+      <view class="prov__foot">
+        <xl-status-dot
+          type="{{item.last_test_status === 'success' ? 'success' : item.last_test_status === 'failed' ? 'failed' : 'pending'}}"
+          label="{{item.last_test_status === 'success' ? '测试成功' : item.last_test_status === 'failed' ? '测试失败' : '未测试'}}"
+        ></xl-status-dot>
+        <text class="xl-text-faint">点击编辑 ›</text>
+      </view>
+    </view>
+  </block>
+
+  <!-- 空数据态 -->
+  <xl-empty wx:else text="暂无 AI 服务配置，点击下方按钮新增"></xl-empty>
+
+  <!-- 底部新增按钮 -->
+  <view class="xl-actions prov-add">
+    <xl-button type="primary" text="+ 新增配置" bind:tap="goAdd"></xl-button>
+  </view>
+
+  <view class="xl-demo-note">比赛演示 · 密钥仅保存在服务端，列表不回显</view>
+</view>

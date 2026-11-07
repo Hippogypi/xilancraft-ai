@@ -1,0 +1,285 @@
+/* ============ ① 预览区 ============ */
+.preview {
+  margin-bottom: 24rpx;
+}
+.preview__garment {
+  position: relative;
+  height: 560rpx;
+  border-radius: 16rpx;
+  border: 1rpx solid var(--xl-gold-40);
+  background:
+    radial-gradient(ellipse at 50% 28%, rgba(245, 237, 222, 0.06), transparent 62%),
+    linear-gradient(180deg, #2E251B, #241D15);
+  overflow: hidden;
+}
+/* 服装剪影占位（透明底 PNG 就位后由 preview__garment-img 替代） */
+.g-body {
+  position: absolute;
+  left: 24%;
+  right: 24%;
+  top: 12%;
+  bottom: 6%;
+  background: linear-gradient(180deg, rgba(245, 237, 222, 0.16), rgba(245, 237, 222, 0.05));
+  border: 1rpx solid rgba(245, 237, 222, 0.28);
+  border-radius: 32rpx 32rpx 16rpx 16rpx;
+}
+.g-sleeve {
+  position: absolute;
+  top: 14%;
+  width: 15%;
+  height: 38%;
+  background: linear-gradient(180deg, rgba(245, 237, 222, 0.13), rgba(245, 237, 222, 0.04));
+  border: 1rpx solid rgba(245, 237, 222, 0.24);
+  border-radius: 16rpx;
+}
+.g-sleeve--l {
+  left: 9%;
+  transform: skewX(6deg);
+}
+.g-sleeve--r {
+  right: 9%;
+  transform: skewX(-6deg);
+}
+.preview__garment-img {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+}
+/* 印花区虚线辅助框（printArea 百分比坐标） */
+.preview__printarea {
+  position: absolute;
+  border: 2rpx dashed var(--xl-gold);
+  border-radius: 4rpx;
+  background: rgba(201, 160, 99, 0.05);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+/* 纹样叠加层（css 菱形纹占位，真实生成图就位后替换为 image） */
+.preview__pattern {
+  position: relative;
+  background:
+    repeating-linear-gradient(45deg, rgba(166, 43, 43, 0.85) 0 12%, transparent 12% 24%),
+    repeating-linear-gradient(-45deg, rgba(233, 185, 76, 0.45) 0 12%, transparent 12% 24%),
+    #2E251B;
+  border-radius: 4rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.preview__pattern-core {
+  width: 34%;
+  padding-bottom: 34%;
+  height: 0;
+  border: 3rpx solid var(--xl-gold);
+  border-radius: 8rpx;
+  transform: rotate(45deg);
+}
+.preview__label {
+  position: absolute;
+  left: 16rpx;
+  bottom: 12rpx;
+  font-size: 20rpx;
+  color: var(--xl-text-faint);
+  background: rgba(22, 18, 14, 0.6);
+  padding: 4rpx 12rpx;
+  border-radius: 6rpx;
+}
+
+/* ============ ② 模板横滑 ============ */
+.tpl-scroll {
+  width: 100%;
+  white-space: nowrap;
+}
+.tpl-row {
+  display: flex;
+  padding-bottom: 8rpx;
+}
+.tpl-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  margin-right: 24rpx;
+}
+.tpl-item__img {
+  width: 132rpx;
+  height: 132rpx;
+  border-radius: 12rpx;
+  border: 2rpx solid var(--xl-gold-40);
+  background-color: var(--xl-bg-card-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  box-sizing: border-box;
+}
+.tpl-item--active .tpl-item__img {
+  border-color: var(--xl-gold);
+  box-shadow: 0 0 0 2rpx rgba(201, 160, 99, 0.25);
+}
+.tpl-item__img image {
+  width: 100%;
+  height: 100%;
+}
+.tpl-item__ph {
+  width: 40rpx;
+  height: 40rpx;
+  border: 3rpx solid rgba(245, 237, 222, 0.4);
+  border-radius: 20rpx 8rpx 20rpx 8rpx;
+}
+.tpl-item__name {
+  margin-top: 10rpx;
+  font-size: 22rpx;
+  color: var(--xl-text-sub);
+}
+.tpl-item--active .tpl-item__name {
+  color: var(--xl-gold);
+}
+
+/* ============ ③ 滑杆 ============ */
+.ctrl {
+  margin-bottom: 24rpx;
+}
+.ctrl--last {
+  margin-bottom: 0;
+}
+.ctrl__row {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 4rpx;
+}
+.ctrl__name {
+  font-size: 26rpx;
+  color: var(--xl-text-sub);
+}
+.ctrl__val {
+  font-size: 24rpx;
+  color: var(--xl-gold);
+}
+.ctrl__slider {
+  margin: 8rpx 8rpx 0;
+}
+
+/* ============ ④ 数量 stepper ============ */
+.qty {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 8rpx;
+}
+.qty__label {
+  font-size: 26rpx;
+  color: var(--xl-text-sub);
+}
+.stepper {
+  display: flex;
+  align-items: center;
+}
+.stepper__btn {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid var(--xl-gold-40);
+  background: var(--xl-bg-card-2);
+  color: var(--xl-gold);
+  font-size: 36rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.stepper__num {
+  min-width: 96rpx;
+  text-align: center;
+  font-size: 30rpx;
+  color: var(--xl-text);
+}
+
+/* ============ ⑥ 隐私 checkbox ============ */
+.privacy {
+  display: flex;
+  align-items: flex-start;
+  padding: 20rpx;
+  border: 1rpx solid var(--xl-gold-40);
+  border-radius: 12rpx;
+  background: var(--xl-bg-card);
+}
+.privacy--error {
+  border-color: var(--xl-danger);
+}
+.privacy__box {
+  flex-shrink: 0;
+  width: 36rpx;
+  height: 36rpx;
+  border: 2rpx solid var(--xl-gold-40);
+  border-radius: 8rpx;
+  margin: 2rpx 16rpx 0 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-sizing: border-box;
+}
+.privacy__box--on {
+  background: var(--xl-primary);
+  border-color: var(--xl-gold);
+}
+/* 对勾 */
+.privacy__tick {
+  width: 16rpx;
+  height: 9rpx;
+  border-left: 3rpx solid var(--xl-text);
+  border-bottom: 3rpx solid var(--xl-text);
+  transform: rotate(-45deg) translate(1rpx, -3rpx);
+}
+.privacy__text {
+  font-size: 24rpx;
+  color: var(--xl-text-sub);
+  line-height: 1.6;
+}
+
+/* ============ ⑦ 成功态 ============ */
+.success-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 72rpx 32rpx 48rpx;
+  margin-top: 120rpx;
+}
+.success-card__icon {
+  width: 56rpx;
+  height: 56rpx;
+  border: 3rpx solid var(--xl-success);
+  border-radius: 10rpx;
+  transform: rotate(45deg);
+  position: relative;
+  margin-bottom: 36rpx;
+}
+.success-card__icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 24rpx;
+  height: 24rpx;
+  margin: -12rpx 0 0 -12rpx;
+  background: var(--xl-success);
+  border-radius: 4rpx;
+}
+.success-card__title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: var(--xl-text);
+}
+.success-card__no {
+  margin: 20rpx 0;
+  font-size: 44rpx;
+  font-weight: 700;
+  letter-spacing: 4rpx;
+  color: var(--xl-gold);
+}
+.success-card .xl-actions {
+  width: 100%;
+}

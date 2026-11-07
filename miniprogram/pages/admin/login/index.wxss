@@ -1,0 +1,48 @@
+.admin-login {
+  display: flex;
+  flex-direction: column;
+}
+.admin-login__card {
+  margin-top: 100rpx;
+  background: var(--xl-bg-card);
+  border: 1rpx solid var(--xl-gold-40);
+  border-radius: 16rpx;
+  padding: 56rpx 40rpx 48rpx;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.admin-login__logo {
+  margin-bottom: 28rpx;
+}
+.admin-login__diamond {
+  width: 104rpx;
+  height: 104rpx;
+  border: 2rpx solid var(--xl-gold);
+  border-radius: 14rpx;
+  transform: rotate(45deg);
+  background: rgba(166, 43, 43, 0.35);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.admin-login__logo-text {
+  transform: rotate(-45deg);
+  font-size: 44rpx;
+  font-weight: 700;
+  color: var(--xl-gold);
+}
+.admin-login__title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--xl-text);
+}
+.admin-login__sub {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: var(--xl-text-faint);
+}
+.admin-login__form {
+  width: 100%;
+  margin-top: 48rpx;
+}

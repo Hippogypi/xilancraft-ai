@@ -1,0 +1,8 @@
+<view class="xl-loading">
+  <view class="xl-loading__row">
+    <view class="xl-loading__diamond xl-loading__diamond--1"></view>
+    <view class="xl-loading__diamond xl-loading__diamond--2"></view>
+    <view class="xl-loading__diamond xl-loading__diamond--3"></view>
+  </view>
+  <text wx:if="{{text}}" class="xl-loading__text">{{text}}</text>
+</view>

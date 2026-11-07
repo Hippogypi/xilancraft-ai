@@ -1,0 +1,9 @@
+<view
+  class="xl-btn xl-btn--{{type}} {{disabled || loading ? 'xl-btn--disabled' : ''}}"
+  hover-class="{{disabled || loading ? 'none' : 'xl-btn--hover'}}"
+  hover-stay-time="90"
+  catchtap="onTap"
+>
+  <view wx:if="{{loading}}" class="xl-btn__spinner"></view>
+  <text class="xl-btn__text">{{text}}</text>
+</view>

@@ -1,0 +1,26 @@
+<view class="xl-page admin-login">
+  <view class="xl-admin-badge">管理端</view>
+
+  <view class="admin-login__card">
+    <view class="admin-login__logo">
+      <view class="admin-login__diamond"><text class="admin-login__logo-text">西</text></view>
+    </view>
+    <text class="admin-login__title">管理员登录</text>
+    <text class="admin-login__sub">西兰卡普 AI 定制工坊 · 管理后台</text>
+
+    <view class="admin-login__form">
+      <view class="xl-form-item">
+        <text class="xl-form-label">管理员账号</text>
+        <input class="xl-input" value="{{username}}" bindinput="onUserInput" placeholder="请输入管理员账号" placeholder-class="xl-ph" />
+      </view>
+      <view class="xl-form-item">
+        <text class="xl-form-label">密码</text>
+        <input class="xl-input" password value="{{password}}" bindinput="onPwdInput" placeholder="请输入密码" placeholder-class="xl-ph" />
+      </view>
+      <view wx:if="{{error}}" class="xl-form-error">{{error}}</view>
+      <xl-button type="primary" text="登录" loading="{{submitting}}" disabled="{{submitting}}" bind:tap="onLogin"></xl-button>
+    </view>
+  </view>
+
+  <view class="xl-demo-note">比赛演示 · 普通用户请返回底部导航使用用户功能</view>
+</view>

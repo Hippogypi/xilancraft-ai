@@ -1,0 +1,12 @@
+{
+  "navigationBarTitleText": "订单详情",
+  "usingComponents": {
+    "xl-button": "/components/xl-button/index",
+    "xl-card": "/components/xl-card/index",
+    "xl-chips": "/components/xl-chips/index",
+    "xl-empty": "/components/xl-empty/index",
+    "xl-loading": "/components/xl-loading/index",
+    "xl-status-dot": "/components/xl-status-dot/index",
+    "xl-half-screen": "/components/xl-half-screen/index"
+  }
+}

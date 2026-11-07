@@ -1,0 +1,85 @@
+<view class="xl-page">
+  <view class="xl-page-head">
+    <text class="xl-page-title">灵感素材库</text>
+    <text class="xl-text-faint">西兰卡普纹样图鉴</text>
+  </view>
+
+  <!-- ① 分类 chips -->
+  <xl-chips options="{{categories}}" value="{{category}}" bind:change="onCategoryChange"></xl-chips>
+
+  <!-- ② 2 列纹样网格 -->
+  <view wx:if="{{list.length}}" class="motif-grid">
+    <view class="motif-card" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onCardTap">
+      <view class="motif-card__imgwrap xl-weave">
+        <image wx:if="{{item.image}}" class="motif-card__img" src="{{item.image}}" mode="aspectFill"></image>
+        <block wx:else>
+          <view class="motif-card__ph"></view>
+          <text class="motif-card__ph-text">纹样图整理中</text>
+        </block>
+        <view class="motif-card__tag {{item.category === 'traditional' ? 'motif-card__tag--trad' : 'motif-card__tag--modern'}}">
+          {{item.category === 'traditional' ? '传统纹样' : '现代转译'}}
+        </view>
+      </view>
+      <view class="motif-card__body">
+        <text class="motif-card__name">{{item.name}}</text>
+        <text class="motif-card__meaning">{{item.meaning}}</text>
+        <text class="motif-card__more">查看详情 ›</text>
+      </view>
+    </view>
+  </view>
+  <!-- 空数据态 -->
+  <xl-empty wx:else text="该分类暂无素材，素材将持续补充"></xl-empty>
+
+  <!-- ④ 传统 vs 现代 对比卡 -->
+  <xl-card title="传统 vs 现代 · 设计思路">
+    <view class="vs">
+      <view class="vs__item">
+        <view class="vs__img vs__img--trad xl-weave"><view class="vs__core"></view></view>
+        <text class="vs__label">传统阳雀花 · 对称饱满</text>
+      </view>
+      <view class="vs__divider"></view>
+      <view class="vs__item">
+        <view class="vs__img vs__img--modern">
+          <view class="vs__chip vs__chip--1"></view>
+          <view class="vs__chip vs__chip--2"></view>
+          <view class="vs__chip vs__chip--3"></view>
+        </view>
+        <text class="vs__label">现代转译 · 色块节奏</text>
+      </view>
+    </view>
+    <text class="xl-text-sub">保留纹样的骨架与配色基因，打散轮廓后以点、线、面重新构成——从"器物纹样"走向"服装语言"。</text>
+  </xl-card>
+
+  <!-- ③ 纹样详情半屏弹层 -->
+  <xl-half-screen show="{{showDetail}}" title="{{detail.name || '纹样详情'}}" bind:close="onDetailClose">
+    <view wx:if="{{detail}}" class="detail">
+      <view class="detail__imgwrap xl-weave">
+        <image wx:if="{{detail.image}}" class="detail__img" src="{{detail.image}}" mode="aspectFill"></image>
+        <block wx:else>
+          <view class="detail__ph"></view>
+          <text class="detail__ph-text">纹样大图整理中（占位）</text>
+        </block>
+        <view class="detail__tag {{detail.category === 'traditional' ? 'motif-card__tag--trad' : 'motif-card__tag--modern'}}">
+          {{detail.category === 'traditional' ? '传统纹样' : '现代转译'}}
+        </view>
+      </view>
+      <view class="detail__section">
+        <text class="detail__label">文化释义</text>
+        <text class="detail__text">{{detail.meaning}}</text>
+      </view>
+      <view class="detail__section">
+        <text class="detail__label">设计关键词</text>
+        <view class="detail__keywords">
+          <view class="xl-tag xl-tag--gold" wx:for="{{detail.keywords}}" wx:key="*this">{{item}}</view>
+        </view>
+      </view>
+      <view class="detail__section">
+        <text class="detail__label">来源说明</text>
+        <text class="detail__text xl-text-faint">{{detail.source}}</text>
+      </view>
+      <xl-button type="primary" text="以此为灵感 → AI 工坊" bind:tap="onUseAsInspiration"></xl-button>
+    </view>
+  </xl-half-screen>
+
+  <view class="xl-demo-note">比赛演示 · 素材授权信息随阶段 4 登记</view>
+</view>

@@ -1,0 +1,131 @@
+<block wx:if="{{submitted}}">
+  <!-- ⑦ 提交成功态 -->
+  <view class="xl-page">
+    <view class="xl-card success-card">
+      <view class="success-card__icon"></view>
+      <text class="success-card__title">定制意向已提交</text>
+      <text class="success-card__no">{{orderNo}}</text>
+      <text class="xl-text-sub">比赛演示 · 模拟订单，不产生真实交易；工作人员可在管理端查看本单。</text>
+      <view class="xl-actions">
+        <xl-button type="primary" text="返回首页" bind:tap="goHome"></xl-button>
+      </view>
+      <view class="xl-actions">
+        <xl-button type="ghost" text="再定制一件" bind:tap="resetForm"></xl-button>
+      </view>
+    </view>
+  </view>
+</block>
+<block wx:else>
+  <view class="xl-page">
+    <view class="xl-page-head">
+      <text class="xl-page-title">服装定制</text>
+      <text class="xl-text-faint">纹样叠加预览 · 模拟订单</text>
+    </view>
+
+    <!-- ① 预览区：服装底图占位 + printArea 虚线框 + 纹样叠加层 -->
+    <view class="preview">
+      <view class="preview__garment">
+        <!-- 服装剪影占位（底图 PNG 就位后替换） -->
+        <view class="g-body"></view>
+        <view class="g-sleeve g-sleeve--l"></view>
+        <view class="g-sleeve g-sleeve--r"></view>
+        <image wx:if="{{garment.image}}" class="preview__garment-img" src="{{garment.image}}" mode="aspectFit"></image>
+
+        <!-- 印花区：printArea 百分比坐标 + 虚线辅助框 -->
+        <view
+          class="preview__printarea"
+          style="top:{{garment.printArea.top}}%;left:{{garment.printArea.left}}%;width:{{garment.printArea.width}}%;height:{{garment.printArea.height}}%;"
+        >
+          <view
+            class="preview__pattern"
+            style="width:{{scale * 100}}%;height:{{scale * 100}}%;transform:translate({{offsetX}}%, {{offsetY}}%);opacity:{{opacity}};"
+          >
+            <view class="preview__pattern-core"></view>
+          </view>
+        </view>
+        <view class="preview__label">{{garment.name}} · 印花区（虚线框）</view>
+      </view>
+    </view>
+
+    <!-- ② 模板横滑单选 -->
+    <xl-card title="服装模板">
+      <scroll-view scroll-x class="tpl-scroll">
+        <view class="tpl-row">
+          <view
+            wx:for="{{garments}}"
+            wx:key="id"
+            class="tpl-item {{garmentId === item.id ? 'tpl-item--active' : ''}}"
+            data-id="{{item.id}}"
+            bindtap="onGarmentTap"
+          >
+            <view class="tpl-item__img xl-weave">
+              <image wx:if="{{item.image}}" src="{{item.image}}" mode="aspectFit"></image>
+              <view wx:else class="tpl-item__ph"></view>
+            </view>
+            <text class="tpl-item__name">{{item.name}}</text>
+          </view>
+        </view>
+      </scroll-view>
+    </xl-card>
+
+    <!-- ③ 调节滑杆：大小 / 水平 / 垂直 / 透明度 -->
+    <xl-card title="纹样调节">
+      <view class="ctrl">
+        <view class="ctrl__row"><text class="ctrl__name">大小</text><text class="ctrl__val">{{scale * 100}}%</text></view>
+        <slider class="ctrl__slider" min="50" max="200" step="5" value="{{scale * 100}}" activeColor="#C9A063" backgroundColor="#2E251B" block-size="20" block-color="#C9A063" bindchange="onScaleChange" bindchanging="onScaleChange" />
+      </view>
+      <view class="ctrl">
+        <view class="ctrl__row"><text class="ctrl__name">水平位置</text><text class="ctrl__val">{{offsetX > 0 ? '+' : ''}}{{offsetX}}%</text></view>
+        <slider class="ctrl__slider" min="-50" max="50" step="5" value="{{offsetX}}" activeColor="#C9A063" backgroundColor="#2E251B" block-size="20" block-color="#C9A063" bindchange="onOffsetXChange" bindchanging="onOffsetXChange" />
+      </view>
+      <view class="ctrl">
+        <view class="ctrl__row"><text class="ctrl__name">垂直位置</text><text class="ctrl__val">{{offsetY > 0 ? '+' : ''}}{{offsetY}}%</text></view>
+        <slider class="ctrl__slider" min="-50" max="50" step="5" value="{{offsetY}}" activeColor="#C9A063" backgroundColor="#2E251B" block-size="20" block-color="#C9A063" bindchange="onOffsetYChange" bindchanging="onOffsetYChange" />
+      </view>
+      <view class="ctrl ctrl--last">
+        <view class="ctrl__row"><text class="ctrl__name">透明度</text><text class="ctrl__val">{{opacity * 100}}%</text></view>
+        <slider class="ctrl__slider" min="10" max="100" step="5" value="{{opacity * 100}}" activeColor="#C9A063" backgroundColor="#2E251B" block-size="20" block-color="#C9A063" bindchange="onOpacityChange" bindchanging="onOpacityChange" />
+      </view>
+    </xl-card>
+
+    <!-- ④ 尺码 chips + 数量 stepper -->
+    <xl-card title="尺码与数量">
+      <xl-chips options="{{sizes}}" value="{{sizeValue}}" bind:change="onSizeChange"></xl-chips>
+      <view class="qty">
+        <text class="qty__label">数量</text>
+        <view class="stepper">
+          <view class="stepper__btn" bindtap="onMinus">−</view>
+          <text class="stepper__num">{{quantity}}</text>
+          <view class="stepper__btn" bindtap="onPlus">＋</view>
+        </view>
+      </view>
+    </xl-card>
+
+    <!-- ⑤ 联系人表单（预填演示虚构数据） -->
+    <xl-card title="联系信息（演示）">
+      <view class="xl-form-item">
+        <text class="xl-form-label">姓名</text>
+        <input class="xl-input" value="{{name}}" bindinput="onNameInput" placeholder="请输入姓名" placeholder-class="xl-ph" />
+      </view>
+      <view class="xl-form-item xl-form-item--last">
+        <text class="xl-form-label">联系电话</text>
+        <input class="xl-input" type="number" maxlength="11" value="{{phone}}" bindinput="onPhoneInput" placeholder="请输入手机号" placeholder-class="xl-ph" />
+      </view>
+    </xl-card>
+
+    <!-- ⑥ 隐私 checkbox：未勾选拦截提交 -->
+    <view class="privacy {{privacyError ? 'privacy--error' : ''}}" bindtap="onPrivacyToggle">
+      <view class="privacy__box {{privacyAccepted ? 'privacy__box--on' : ''}}">
+        <view wx:if="{{privacyAccepted}}" class="privacy__tick"></view>
+      </view>
+      <text class="privacy__text">本单为比赛演示模拟订单，不产生真实交易；同意仅为演示用途。</text>
+    </view>
+
+    <!-- 提交按钮 -->
+    <view class="xl-actions">
+      <xl-button type="primary" text="提交定制意向" loading="{{submitting}}" disabled="{{submitting}}" bind:tap="onSubmit"></xl-button>
+    </view>
+
+    <view class="xl-demo-note">比赛演示 · 模拟数据 · 无支付环节</view>
+  </view>
+</block>

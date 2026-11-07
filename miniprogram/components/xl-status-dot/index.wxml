@@ -1,0 +1,4 @@
+<view class="xl-dot xl-dot--{{type}}">
+  <view class="xl-dot__core"></view>
+  <text wx:if="{{label}}" class="xl-dot__label">{{label}}</text>
+</view>

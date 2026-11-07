@@ -1,0 +1,34 @@
+:host {
+  display: block;
+}
+.xl-loading {
+  padding: 48rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.xl-loading__row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 24rpx;
+}
+.xl-loading__diamond {
+  width: 18rpx;
+  height: 18rpx;
+  background: var(--xl-gold);
+  border-radius: 3rpx;
+  transform: rotate(45deg);
+  margin: 0 10rpx;
+  animation: xl-loading-blink 1.2s ease-in-out infinite;
+}
+.xl-loading__diamond--1 { animation-delay: 0s; }
+.xl-loading__diamond--2 { animation-delay: 0.2s; }
+.xl-loading__diamond--3 { animation-delay: 0.4s; }
+@keyframes xl-loading-blink {
+  0%, 100% { opacity: 0.25; }
+  50% { opacity: 1; }
+}
+.xl-loading__text {
+  font-size: 26rpx;
+  color: var(--xl-text-sub);
+}

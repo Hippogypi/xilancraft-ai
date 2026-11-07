@@ -1,0 +1,14 @@
+[
+  {
+    "id": "hoodie-001",
+    "name": "现代卫衣",
+    "image": "",
+    "printArea": { "top": 28, "left": 32, "width": 36, "height": 24 }
+  },
+  {
+    "id": "tee-001",
+    "name": "基础圆领T恤",
+    "image": "",
+    "printArea": { "top": 24, "left": 34, "width": 32, "height": 22 }
+  }
+]

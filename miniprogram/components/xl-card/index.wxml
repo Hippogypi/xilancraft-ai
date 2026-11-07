@@ -1,0 +1,9 @@
+<view class="xl-card">
+  <view wx:if="{{title}}" class="xl-card__head">
+    <view class="xl-card__mark"></view>
+    <text class="xl-card__title">{{title}}</text>
+  </view>
+  <view class="xl-card__body">
+    <slot></slot>
+  </view>
+</view>

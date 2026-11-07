@@ -35,27 +35,27 @@
 
 ## 二、阶段 1：后端纵切（1 个 subagent）
 
-- [ ] 1.1 Express 服务 + `/api/health` + 环境配置 + 统一响应/错误码/请求 ID/结构化日志（WBS 10.01/10.07）
-- [ ] 1.2 SQLite 初始化与迁移（用 Node 内置 `node:sqlite`，免原生编译）、事务安全（WBS 10.02）
-- [ ] 1.3 管理员登录：密码哈希、会话 token、登录限试、全管理接口鉴权 401/403（WBS 06.01/06.02、10.08）
-- [ ] 1.4 providers CRUD：密钥 AES-256-GCM 加密存储、「留空=不变」语义、只回 `hasApiKey`、激活原子切换（WBS 07.01/07.02/07.03/07.06）
-- [ ] 1.5 Provider 适配层：`zhipu`（openai_compatible 生图协议，先验证协议再编码）+ `mock`（开发/测试）+ SSRF 地址校验（WBS 07.04、10.03）
-- [ ] 1.6 生成任务：提交/查询/状态机（queued/running/succeeded/failed）、图片下载落盘 `data/generated`、超时与限频与每日上限（WBS 10.04/10.05、04.09、8.1）
-- [ ] 1.7 订单：唯一订单号、SQLite 持久化、状态流转、`generationJobId` 校验（WBS 09.01/09.03）
-- [ ] 1.8 上传参考图：类型/大小校验、安全路径（WBS 10.06）
-- [ ] 1.9 管理端查询接口：providers/generations/orders 列表详情（WBS 08.01/08.02/09.02/09.04）
-- [ ] 1.10 curl 验收脚本 + mock 走通全链路 + `.env.example`
-- [ ] 1.11 审查验收后提交推送：`feat(server): P0 API 全量`
+- [x] 1.1 Express 服务 + `/api/health` + 环境配置 + 统一响应/错误码/请求 ID/结构化日志（WBS 10.01/10.07）
+- [x] 1.2 SQLite 初始化与迁移（用 Node 内置 `node:sqlite`，免原生编译）、事务安全（WBS 10.02）
+- [x] 1.3 管理员登录：密码哈希、会话 token、登录限试、全管理接口鉴权 401/403（WBS 06.01/06.02、10.08）
+- [x] 1.4 providers CRUD：密钥 AES-256-GCM 加密存储、「留空=不变」语义、只回 `hasApiKey`、激活原子切换（WBS 07.01/07.02/07.03/07.06）
+- [x] 1.5 Provider 适配层：`zhipu`（openai_compatible 生图协议，先验证协议再编码）+ `mock`（开发/测试）+ SSRF 地址校验（WBS 07.04、10.03）
+- [x] 1.6 生成任务：提交/查询/状态机（queued/running/succeeded/failed）、图片下载落盘 `data/generated`、超时与限频与每日上限（WBS 10.04/10.05、04.09、8.1）
+- [x] 1.7 订单：唯一订单号、SQLite 持久化、状态流转、`generationJobId` 校验（WBS 09.01/09.03）
+- [x] 1.8 上传参考图：类型/大小校验、安全路径（WBS 10.06）
+- [x] 1.9 管理端查询接口：providers/generations/orders 列表详情（WBS 08.01/08.02/09.02/09.04）
+- [x] 1.10 curl 验收脚本 + mock 走通全链路 + `.env.example`（`scripts/test-api.sh`，32 项断言全绿）
+- [x] 1.11 审查验收后提交推送：`feat(server): P0 API 全量`
 
 ## 三、阶段 2：小程序底座（1 个 subagent）
 
-- [ ] 2.1 原生工程：`project.config.json`（AppID wxbc06ada82397114b）、`app.json` 四 Tab（非遗导览/灵感素材库/AI 工坊/服装定制）、`sitemap.json`（WBS 01.01）
-- [ ] 2.2 目录规范 `pages/ components/ services/ utils/ assets/` + 全局样式/主题变量（WBS 01.02/01.03）
-- [ ] 2.3 通用组件：按钮/卡片/加载/空态/错误态
-- [ ] 2.4 统一 API 客户端：环境配置（localhost:3000）、超时、统一错误处理、requestId（WBS 01.04）
-- [ ] 2.5 隐藏管理入口（首页 logo 连点 5 次）+ `pages/admin/*` 路由与未登录拦截（WBS 01.05）
-- [ ] 2.6 模拟器/真机环境差异说明（WBS 01.06）
-- [ ] 2.7 审查验收后提交推送：`feat(miniprogram): 底座`
+- [x] 2.1 原生工程：`project.config.json`（AppID 占位 touristappid + 私有配置真实值）、`app.json` 四 Tab（非遗导览/灵感素材库/AI 工坊/服装定制）、`sitemap.json`（WBS 01.01）
+- [x] 2.2 目录规范 `pages/ components/ services/ utils/ assets/` + 全局样式/主题变量（WBS 01.02/01.03）
+- [x] 2.3 通用组件：xl-button/xl-card/xl-chips/xl-empty/xl-loading/xl-status-dot/xl-half-screen
+- [x] 2.4 统一 API 客户端：环境配置（localhost:3000）、超时、统一错误处理、requestId（WBS 01.04）
+- [x] 2.5 隐藏管理入口（首页 logo 连点 5 次）+ `pages/admin/*` 路由与未登录拦截（WBS 01.05）
+- [x] 2.6 模拟器/真机环境差异说明（WBS 01.06，`miniprogram/README-dev.md` + `config/env.js` 注释）
+- [x] 2.7 审查验收后提交推送：`feat(miniprogram): 底座`
 
 ## 四、阶段 3：P0 端到端（2 个 subagent 并行 + 主控联调）
 

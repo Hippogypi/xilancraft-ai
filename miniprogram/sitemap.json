@@ -1,0 +1,9 @@
+{
+  "desc": "西兰卡普AI定制工坊比赛Demo，禁止被微信索引",
+  "rules": [
+    {
+      "action": "disallow",
+      "page": "*"
+    }
+  ]
+}

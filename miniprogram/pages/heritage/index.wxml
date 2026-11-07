@@ -1,0 +1,88 @@
+<view class="xl-page heritage">
+  <!-- ① 主视觉横幅：css 渐变+菱形几何模拟织锦（不放图片文件） -->
+  <view class="hero">
+    <view class="hero__weave"></view>
+    <view class="hero__diamond hero__diamond--outer"></view>
+    <view class="hero__diamond hero__diamond--inner"></view>
+    <!-- 页面标题/LOGO 文字区 = 隐藏管理入口：2 秒内连点 5 次跳 admin/login -->
+    <view class="hero__brand" bindtap="onLogoTap">
+      <text class="hero__title">西兰卡普</text>
+      <text class="hero__subtitle">土家族织锦 · 非遗新生</text>
+    </view>
+    <text class="hero__tagline">传统符号解构 × 几何重组 × AI 共创</text>
+    <view class="hero__threads">
+      <view class="hero__thread" style="background: var(--xl-thread-red);"></view>
+      <view class="hero__thread" style="background: var(--xl-thread-orange);"></view>
+      <view class="hero__thread" style="background: var(--xl-thread-yellow);"></view>
+      <view class="hero__thread" style="background: var(--xl-thread-green);"></view>
+      <view class="hero__thread" style="background: var(--xl-thread-blue);"></view>
+    </view>
+  </view>
+
+  <!-- ② 简介文字卡：历史/工艺/文化价值三小段 -->
+  <xl-card title="西兰卡普 · 织锦千年">
+    <view class="intro" wx:for="{{introSections}}" wx:key="title">
+      <view class="intro__head">
+        <view class="intro__mark"></view>
+        <text class="intro__title">{{item.title}}</text>
+      </view>
+      <text class="intro__text">{{item.text}}</text>
+    </view>
+  </xl-card>
+
+  <!-- ③ 符号解构 · 几何重组案例卡：左右占位色块 + 箭头 -->
+  <xl-card title="符号解构 · 几何重组">
+    <view class="dcd">
+      <view class="dcd__pane">
+        <view class="dcd__block dcd__block--trad xl-weave">
+          <view class="dcd__core"></view>
+        </view>
+        <text class="dcd__label">传统 · 四十八勾纹</text>
+      </view>
+      <view class="dcd__arrow">
+        <text class="dcd__arrow-text">解构</text>
+        <text class="dcd__arrow-line">→</text>
+        <text class="dcd__arrow-text">重组</text>
+      </view>
+      <view class="dcd__pane">
+        <view class="dcd__block dcd__block--modern">
+          <view class="dcd__chip dcd__chip--1"></view>
+          <view class="dcd__chip dcd__chip--2"></view>
+          <view class="dcd__chip dcd__chip--3"></view>
+        </view>
+        <text class="dcd__label">现代 · 几何印花</text>
+      </view>
+    </view>
+    <text class="xl-text-sub">把勾状折线拆解为菱形与三角单元，按现代视觉节奏重新排布，成为可印在服装上的新纹样。</text>
+  </xl-card>
+
+  <!-- ④ 织机视频卡：video 组件，资源缺失显示占位提示 -->
+  <xl-card title="织机演示 · 匠心织造">
+    <view class="video-wrap">
+      <video
+        wx:if="{{videoSrc}}"
+        class="video"
+        src="{{videoSrc}}"
+        poster="{{videoPoster}}"
+        object-fit="cover"
+        controls
+        binderror="onVideoError"
+      ></video>
+      <!-- 资源缺失占位（videoSrc 为空时展示） -->
+      <view wx:else class="video-ph xl-weave">
+        <view class="video-ph__play"></view>
+        <text class="video-ph__text">3D 织机演示视频整理中</text>
+        <text class="video-ph__sub">视频资源就位后此处自动替换（占位提示）</text>
+      </view>
+      <view wx:if="{{videoError}}" class="video-err">视频加载失败，请稍后再试</view>
+    </view>
+  </xl-card>
+
+  <!-- ⑤ 底部双按钮 -->
+  <view class="xl-actions xl-actions--pair">
+    <xl-button type="ghost" text="逛逛灵感素材" bind:tap="goInspiration"></xl-button>
+    <xl-button type="primary" text="开始 AI 定制" bind:tap="goWorkshop"></xl-button>
+  </view>
+
+  <view class="xl-demo-note">比赛演示 · 西兰卡普AI定制工坊</view>
+</view>

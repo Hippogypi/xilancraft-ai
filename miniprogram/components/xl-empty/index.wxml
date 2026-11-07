@@ -1,0 +1,6 @@
+<view class="xl-empty">
+  <view class="xl-empty__icon">
+    <view class="xl-empty__inner"></view>
+  </view>
+  <text class="xl-empty__text">{{text}}</text>
+</view>

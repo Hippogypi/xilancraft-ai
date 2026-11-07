@@ -1,0 +1,92 @@
+/* P2 统计卡占位（三格） */
+.stats {
+  display: flex;
+  margin-bottom: 24rpx;
+}
+.stats__cell {
+  flex: 1;
+  background: var(--xl-bg-card);
+  border: 1rpx solid var(--xl-gold-40);
+  border-radius: 16rpx;
+  padding: 24rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.stats__cell + .stats__cell {
+  margin-left: 20rpx;
+}
+.stats__num {
+  font-size: 40rpx;
+  font-weight: 700;
+  color: var(--xl-gold);
+}
+.stats__label {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: var(--xl-text-sub);
+}
+
+/* 三入口卡 */
+.entry {
+  display: flex;
+  align-items: center;
+}
+.entry__icon {
+  flex-shrink: 0;
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 16rpx;
+  border: 2rpx solid var(--xl-gold-40);
+  transform: rotate(45deg);
+  margin: 8rpx 28rpx 8rpx 12rpx;
+  position: relative;
+}
+.entry__icon::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 26rpx;
+  height: 26rpx;
+  margin: -13rpx 0 0 -13rpx;
+  border-radius: 4rpx;
+}
+.entry__icon--provider {
+  background: rgba(166, 43, 43, 0.3);
+}
+.entry__icon--provider::after {
+  background: var(--xl-primary);
+}
+.entry__icon--gen {
+  background: rgba(58, 110, 165, 0.22);
+}
+.entry__icon--gen::after {
+  background: var(--xl-thread-blue);
+}
+.entry__icon--order {
+  background: rgba(233, 185, 76, 0.18);
+}
+.entry__icon--order::after {
+  background: var(--xl-thread-yellow);
+}
+.entry__body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+.entry__name {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--xl-text);
+}
+.entry__desc {
+  margin-top: 6rpx;
+  font-size: 22rpx;
+  color: var(--xl-text-sub);
+}
+.entry__arrow {
+  font-size: 40rpx;
+  color: var(--xl-gold-40);
+  margin-left: 12rpx;
+}

@@ -1,0 +1,11 @@
+<view wx:if="{{show}}" class="xl-mask" catchtap="onClose"></view>
+<view class="xl-half {{show ? 'xl-half--show' : ''}}" catchtap="noop">
+  <view class="xl-half__head">
+    <view class="xl-half__mark"></view>
+    <text class="xl-half__title">{{title}}</text>
+    <view class="xl-half__close" catchtap="onClose">✕</view>
+  </view>
+  <scroll-view scroll-y class="xl-half__body">
+    <slot></slot>
+  </scroll-view>
+</view>

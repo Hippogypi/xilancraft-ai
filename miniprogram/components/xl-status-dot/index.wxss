@@ -1,0 +1,30 @@
+:host {
+  display: inline-flex;
+  align-items: center;
+}
+.xl-dot {
+  display: flex;
+  align-items: center;
+}
+.xl-dot__core {
+  width: 14rpx;
+  height: 14rpx;
+  border-radius: 50%;
+  margin-right: 10rpx;
+  background: var(--xl-text-faint);
+}
+.xl-dot--success .xl-dot__core { background: var(--xl-success); }
+.xl-dot--failed .xl-dot__core { background: var(--xl-danger); }
+.xl-dot--pending .xl-dot__core { background: var(--xl-text-faint); }
+.xl-dot--running .xl-dot__core {
+  background: var(--xl-gold);
+  animation: xl-dot-pulse 1.2s ease-in-out infinite;
+}
+@keyframes xl-dot-pulse {
+  0%, 100% { opacity: 0.35; }
+  50% { opacity: 1; }
+}
+.xl-dot__label {
+  font-size: 24rpx;
+  color: var(--xl-text-sub);
+}

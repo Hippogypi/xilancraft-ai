@@ -1,0 +1,26 @@
+{
+  "compileType": "miniprogram",
+  "libVersion": "3.8.12",
+  "appid": "touristappid",
+  "projectname": "xilankapu-workshop",
+  "description": "西兰卡普AI定制工坊 · 微信原生小程序（比赛Demo）",
+  "setting": {
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "urlCheck": false,
+    "coverView": true,
+    "ignoreUploadUnusedFiles": true,
+    "babelSetting": {
+      "ignore": [],
+      "disablePlugins": [],
+      "outputPath": ""
+    }
+  },
+  "condition": {},
+  "editorSetting": {
+    "tabIndent": "insertSpaces",
+    "tabSize": 2
+  }
+}

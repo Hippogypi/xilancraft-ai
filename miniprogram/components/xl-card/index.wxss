@@ -1,0 +1,34 @@
+:host {
+  display: block;
+}
+/* 卡片通用：卡片底 + 金 1rpx 描边 + 16rpx 圆角 */
+.xl-card {
+  background: var(--xl-bg-card);
+  border: 1rpx solid var(--xl-gold-40);
+  border-radius: 16rpx;
+  padding: 24rpx;
+  box-sizing: border-box;
+  margin-bottom: 24rpx;
+}
+.xl-card__head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 16rpx;
+}
+/* 标题前菱形装饰 */
+.xl-card__mark {
+  width: 14rpx;
+  height: 14rpx;
+  background: var(--xl-gold);
+  transform: rotate(45deg);
+  border-radius: 2rpx;
+  margin-right: 14rpx;
+}
+.xl-card__title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--xl-text);
+}
+.xl-card__body {
+  color: var(--xl-text);
+}

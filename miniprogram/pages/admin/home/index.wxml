@@ -1,0 +1,57 @@
+<view class="xl-page">
+  <view class="xl-admin-badge">管理端</view>
+  <view class="xl-page-head">
+    <text class="xl-page-title">管理首页</text>
+    <text class="xl-text-faint">西兰卡普 AI 定制工坊</text>
+  </view>
+
+  <!-- P2：统计卡占位（数据阶段接入 GET /api/admin/stats） -->
+  <view class="stats">
+    <view class="stats__cell">
+      <text class="stats__num">--</text>
+      <text class="stats__label">生成次数</text>
+    </view>
+    <view class="stats__cell">
+      <text class="stats__num">--</text>
+      <text class="stats__label">成功率</text>
+    </view>
+    <view class="stats__cell">
+      <text class="stats__num">--</text>
+      <text class="stats__label">订单数</text>
+    </view>
+  </view>
+
+  <!-- 三入口卡 -->
+  <view class="xl-card entry" bindtap="goProviders">
+    <view class="entry__icon entry__icon--provider"></view>
+    <view class="entry__body">
+      <text class="entry__name">AI 接口配置</text>
+      <text class="entry__desc">绑定生图 Provider、模型与密钥，测试并激活服务</text>
+    </view>
+    <text class="entry__arrow">›</text>
+  </view>
+
+  <view class="xl-card entry" bindtap="goGenerations">
+    <view class="entry__icon entry__icon--gen"></view>
+    <view class="entry__body">
+      <text class="entry__name">生成记录</text>
+      <text class="entry__desc">查看历史生成任务、提示词与失败原因</text>
+    </view>
+    <text class="entry__arrow">›</text>
+  </view>
+
+  <view class="xl-card entry" bindtap="goOrders">
+    <view class="entry__icon entry__icon--order"></view>
+    <view class="entry__body">
+      <text class="entry__name">订单管理</text>
+      <text class="entry__desc">查看模拟定制订单并流转状态</text>
+    </view>
+    <text class="entry__arrow">›</text>
+  </view>
+
+  <view class="xl-actions">
+    <xl-button type="ghost" text="退出登录" bind:tap="onLogout"></xl-button>
+  </view>
+
+  <view class="xl-demo-note">比赛演示 · 管理端仅限工作人员使用</view>
+</view>

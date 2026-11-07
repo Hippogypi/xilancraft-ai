@@ -1,0 +1,9 @@
+<view class="xl-chips">
+  <view
+    wx:for="{{options}}"
+    wx:key="value"
+    class="xl-chip {{value === item.value ? 'xl-chip--active' : ''}}"
+    data-value="{{item.value}}"
+    catchtap="onChipTap"
+  >{{item.label}}</view>
+</view>

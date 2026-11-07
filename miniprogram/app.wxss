@@ -1,0 +1,189 @@
+/**
+ * app.wxss —— 西兰卡普AI定制工坊 全局主题
+ * 设计 Token 与通用类，规格来源：shared/UI-SPEC.md §1（冻结版）
+ * 风格基调：深色织锦质感 —— 墨黑底 + 织锦红 + 暖金描边 + 米白文字
+ */
+page {
+  /* 背景/表面 */
+  --xl-bg-page: #16120E;        /* 墨黑棕，页面底 */
+  --xl-bg-card: #241D15;        /* 卡片底 */
+  --xl-bg-card-2: #2E251B;      /* 卡片内嵌块/输入底 */
+  /* 品牌色 */
+  --xl-primary: #A62B2B;        /* 织锦红：主按钮/强调 */
+  --xl-primary-deep: #7E1F1F;   /* 按下态 */
+  --xl-gold: #C9A063;           /* 暖金：描边/标题点缀/选中 */
+  --xl-gold-40: rgba(201, 160, 99, 0.4);
+  /* 文字 */
+  --xl-text: #F5EDDE;           /* 米白主文字 */
+  --xl-text-sub: #B9AC97;       /* 次级文字 */
+  --xl-text-faint: #7E7362;     /* 占位/说明 */
+  /* 织线五色（分类 tag/状态点缀，取自西兰卡普经典彩线） */
+  --xl-thread-red: #C0392B;
+  --xl-thread-orange: #E67E22;
+  --xl-thread-yellow: #E9B94C;
+  --xl-thread-green: #3E8E5A;
+  --xl-thread-blue: #3A6EA5;
+  /* 状态 */
+  --xl-success: #3E8E5A;
+  --xl-danger: #C0392B;
+  --xl-warning: #E67E22;
+
+  background: var(--xl-bg-page);
+  color: var(--xl-text);
+  font-size: 28rpx;
+  font-weight: 400;
+  line-height: 1.6;
+  font-family: -apple-system, "PingFang SC", "Helvetica Neue", "Microsoft YaHei", sans-serif;
+}
+
+/* ============ 页面容器 ============ */
+.xl-page {
+  min-height: 100vh;
+  padding: 24rpx 24rpx 60rpx;
+  box-sizing: border-box;
+}
+.xl-page-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+/* 页标题 36rpx/700 */
+.xl-page-title {
+  font-size: 36rpx;
+  font-weight: 700;
+  color: var(--xl-text);
+}
+/* 卡片标题 30rpx/600（供 xl-card 标题之外的场合兜底） */
+.xl-title {
+  font-size: 30rpx;
+  font-weight: 600;
+  color: var(--xl-text);
+}
+.xl-text-sub {
+  font-size: 26rpx;
+  color: var(--xl-text-sub);
+}
+.xl-text-faint {
+  font-size: 24rpx;
+  color: var(--xl-text-faint);
+}
+.xl-section {
+  margin-top: 24rpx;
+}
+
+/* ============ 标签 tag（全圆角） ============ */
+.xl-tag {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 18rpx;
+  border-radius: 999rpx;
+  font-size: 22rpx;
+  line-height: 1.5;
+}
+.xl-tag--gold {
+  color: var(--xl-gold);
+  border: 1rpx solid var(--xl-gold);
+  background: rgba(201, 160, 99, 0.12);
+}
+.xl-tag--warn {
+  color: var(--xl-warning);
+  border: 1rpx solid var(--xl-warning);
+  background: rgba(230, 126, 34, 0.12);
+}
+.xl-tag--success {
+  color: var(--xl-success);
+  border: 1rpx solid var(--xl-success);
+  background: rgba(62, 142, 90, 0.12);
+}
+.xl-tag--info {
+  color: var(--xl-thread-blue);
+  border: 1rpx solid var(--xl-thread-blue);
+  background: rgba(58, 110, 165, 0.12);
+}
+.xl-tag--danger {
+  color: var(--xl-danger);
+  border: 1rpx solid var(--xl-danger);
+  background: rgba(192, 57, 43, 0.12);
+}
+
+/* ============ 按钮组容器 ============ */
+.xl-actions {
+  margin-top: 24rpx;
+}
+.xl-actions--pair {
+  display: flex;
+}
+.xl-actions--pair xl-button {
+  flex: 1;
+}
+.xl-actions--pair xl-button:first-child {
+  margin-right: 20rpx;
+}
+
+/* ============ 表单通用（admin / customization） ============ */
+.xl-form-item {
+  margin-bottom: 20rpx;
+}
+.xl-form-label {
+  display: block;
+  font-size: 26rpx;
+  color: var(--xl-text-sub);
+  margin-bottom: 10rpx;
+}
+.xl-input {
+  background: var(--xl-bg-card-2);
+  border: 1rpx solid var(--xl-gold-40);
+  border-radius: 12rpx;
+  height: 80rpx;
+  padding: 0 20rpx;
+  color: var(--xl-text);
+  font-size: 28rpx;
+  box-sizing: border-box;
+}
+.xl-ph {
+  color: var(--xl-text-faint);
+}
+.xl-form-error {
+  color: var(--xl-danger);
+  font-size: 24rpx;
+  margin: -8rpx 0 16rpx;
+}
+
+/* ============ 管理端徽标（所有 admin 页顶部统一标注） ============ */
+.xl-admin-badge {
+  display: inline-flex;
+  align-items: center;
+  padding: 4rpx 16rpx;
+  margin-bottom: 20rpx;
+  border-radius: 6rpx;
+  border: 1rpx solid var(--xl-gold-40);
+  background: rgba(201, 160, 99, 0.1);
+  color: var(--xl-gold);
+  font-size: 22rpx;
+  letter-spacing: 2rpx;
+}
+
+/* ============ 演示数据标注 ============ */
+.xl-demo-note {
+  margin-top: 32rpx;
+  text-align: center;
+  font-size: 22rpx;
+  color: var(--xl-text-faint);
+}
+
+/* ============ 菱形织锦占位装饰（图片未就位时的 css 纹样兜底） ============ */
+/* 斜向经纬织线底纹 */
+.xl-weave {
+  background-image:
+    repeating-linear-gradient(45deg, rgba(201, 160, 99, 0.16) 0 2rpx, transparent 2rpx 26rpx),
+    repeating-linear-gradient(-45deg, rgba(201, 160, 99, 0.16) 0 2rpx, transparent 2rpx 26rpx);
+}
+/* 金线菱形（空态/装饰图标用） */
+.xl-diamond {
+  width: 20rpx;
+  height: 20rpx;
+  background: var(--xl-gold);
+  transform: rotate(45deg);
+  border-radius: 3rpx;
+}

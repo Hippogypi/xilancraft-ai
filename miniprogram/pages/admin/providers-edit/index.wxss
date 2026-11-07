@@ -1,0 +1,52 @@
+/* picker 内嵌输入样式 */
+.pe-input {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pe-input__text {
+  color: var(--xl-text);
+  font-size: 28rpx;
+}
+.pe-input__arrow {
+  color: var(--xl-gold-40);
+  font-size: 24rpx;
+}
+
+/* 测试生成结果占位 */
+.test {
+  display: flex;
+  align-items: center;
+}
+.test__thumb {
+  flex-shrink: 0;
+  width: 160rpx;
+  height: 160rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid var(--xl-gold-40);
+  background-color: var(--xl-bg-card-2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-right: 24rpx;
+}
+.test__thumb-text {
+  font-size: 20rpx;
+  color: var(--xl-text-faint);
+}
+.test__info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+}
+.test__meta {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: var(--xl-text-sub);
+}
+.test__err {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--xl-danger);
+}

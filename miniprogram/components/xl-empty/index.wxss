@@ -1,0 +1,32 @@
+:host {
+  display: block;
+}
+.xl-empty {
+  padding: 64rpx 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+/* 外层金线菱形（旋转正方形） */
+.xl-empty__icon {
+  width: 56rpx;
+  height: 56rpx;
+  border: 2rpx solid var(--xl-gold-40);
+  border-radius: 6rpx;
+  transform: rotate(45deg);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 32rpx;
+}
+/* 内层实心小菱形 */
+.xl-empty__inner {
+  width: 16rpx;
+  height: 16rpx;
+  background: var(--xl-gold-40);
+  border-radius: 2rpx;
+}
+.xl-empty__text {
+  font-size: 26rpx;
+  color: var(--xl-text-sub);
+}

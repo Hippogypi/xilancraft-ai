@@ -1,0 +1,267 @@
+/* ============ ① 主视觉横幅：css 织锦 ============ */
+.hero {
+  position: relative;
+  overflow: hidden;
+  border-radius: 16rpx;
+  border: 1rpx solid var(--xl-gold-40);
+  background:
+    radial-gradient(circle at 85% 12%, rgba(166, 43, 43, 0.5) 0%, rgba(166, 43, 43, 0) 55%),
+    radial-gradient(circle at 8% 92%, rgba(201, 160, 99, 0.16) 0%, rgba(201, 160, 99, 0) 45%),
+    linear-gradient(155deg, #2E251B 0%, #241D15 48%, #1B1510 100%);
+  padding: 56rpx 32rpx 40rpx;
+  margin-bottom: 24rpx;
+}
+/* 斜向经纬织线装饰层 */
+.hero__weave {
+  position: absolute;
+  right: -30rpx;
+  top: -30rpx;
+  width: 300rpx;
+  height: 300rpx;
+  opacity: 0.55;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(201, 160, 99, 0.22) 0 2rpx, transparent 2rpx 28rpx),
+    repeating-linear-gradient(-45deg, rgba(201, 160, 99, 0.22) 0 2rpx, transparent 2rpx 28rpx);
+}
+/* 嵌套菱形装饰（菱中菱） */
+.hero__diamond {
+  position: absolute;
+  border-radius: 8rpx;
+  transform: rotate(45deg);
+}
+.hero__diamond--outer {
+  width: 130rpx;
+  height: 130rpx;
+  border: 2rpx solid var(--xl-gold-40);
+  right: 64rpx;
+  top: 100rpx;
+}
+.hero__diamond--inner {
+  width: 60rpx;
+  height: 60rpx;
+  border: 2rpx solid var(--xl-gold);
+  background: rgba(166, 43, 43, 0.55);
+  right: 99rpx;
+  top: 135rpx;
+}
+/* LOGO 文字区（隐藏管理入口，外观无提示） */
+.hero__brand {
+  display: inline-flex;
+  flex-direction: column;
+  position: relative;
+}
+.hero__title {
+  font-size: 64rpx;
+  font-weight: 700;
+  letter-spacing: 10rpx;
+  color: var(--xl-text);
+}
+.hero__subtitle {
+  margin-top: 12rpx;
+  font-size: 26rpx;
+  letter-spacing: 4rpx;
+  color: var(--xl-gold);
+}
+.hero__tagline {
+  display: block;
+  margin-top: 24rpx;
+  font-size: 24rpx;
+  color: var(--xl-text-sub);
+}
+/* 织线五色点缀 */
+.hero__threads {
+  display: flex;
+  margin-top: 28rpx;
+}
+.hero__thread {
+  width: 48rpx;
+  height: 8rpx;
+  border-radius: 4rpx;
+  margin-right: 12rpx;
+  opacity: 0.85;
+}
+
+/* ============ ② 简介三段 ============ */
+.intro {
+  margin-bottom: 24rpx;
+}
+.intro:last-child {
+  margin-bottom: 0;
+}
+.intro__head {
+  display: flex;
+  align-items: center;
+  margin-bottom: 8rpx;
+}
+.intro__mark {
+  width: 12rpx;
+  height: 12rpx;
+  background: var(--xl-primary);
+  border: 1rpx solid var(--xl-gold-40);
+  transform: rotate(45deg);
+  border-radius: 2rpx;
+  margin-right: 12rpx;
+}
+.intro__title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: var(--xl-gold);
+}
+.intro__text {
+  display: block;
+  font-size: 26rpx;
+  color: var(--xl-text-sub);
+  line-height: 1.7;
+  text-align: justify;
+}
+
+/* ============ ③ 符号解构案例 ============ */
+.dcd {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+.dcd__pane {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.dcd__block {
+  width: 100%;
+  height: 200rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid var(--xl-gold-40);
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  overflow: hidden;
+}
+/* 传统：暖色斜纹菱格 */
+.dcd__block--trad {
+  background-color: #2E251B;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(192, 57, 43, 0.5) 0 16rpx, transparent 16rpx 34rpx),
+    repeating-linear-gradient(-45deg, rgba(233, 185, 76, 0.28) 0 16rpx, transparent 16rpx 34rpx);
+}
+.dcd__core {
+  width: 64rpx;
+  height: 64rpx;
+  border: 3rpx solid var(--xl-gold);
+  border-radius: 6rpx;
+  transform: rotate(45deg);
+}
+/* 现代：色块蒙德里安式切分 */
+.dcd__block--modern {
+  background-color: #2E251B;
+}
+.dcd__chip {
+  position: absolute;
+  border-radius: 6rpx;
+}
+.dcd__chip--1 {
+  width: 44%;
+  height: 40%;
+  left: 6%;
+  top: 8%;
+  background: var(--xl-thread-blue);
+  opacity: 0.75;
+  transform: rotate(-6deg);
+}
+.dcd__chip--2 {
+  width: 52%;
+  height: 34%;
+  right: 4%;
+  top: 34%;
+  background: var(--xl-primary);
+  opacity: 0.85;
+  transform: rotate(4deg);
+}
+.dcd__chip--3 {
+  width: 36%;
+  height: 28%;
+  left: 24%;
+  bottom: 6%;
+  background: var(--xl-thread-yellow);
+  opacity: 0.7;
+  transform: rotate(-3deg);
+}
+.dcd__label {
+  margin-top: 12rpx;
+  font-size: 24rpx;
+  color: var(--xl-text-sub);
+}
+.dcd__arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 0 16rpx;
+}
+.dcd__arrow-line {
+  font-size: 36rpx;
+  color: var(--xl-gold);
+  margin: 4rpx 0;
+}
+.dcd__arrow-text {
+  font-size: 20rpx;
+  color: var(--xl-text-faint);
+}
+
+/* ============ ④ 视频卡 ============ */
+.video-wrap {
+  position: relative;
+}
+.video {
+  width: 100%;
+  height: 360rpx;
+  border-radius: 12rpx;
+  background: #1A1A1A;
+}
+.video-ph {
+  height: 360rpx;
+  border-radius: 12rpx;
+  border: 1rpx solid var(--xl-gold-40);
+  background-color: var(--xl-bg-card-2);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+/* 播放键占位（圆 + 三角） */
+.video-ph__play {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 50%;
+  border: 2rpx solid var(--xl-gold);
+  position: relative;
+  margin-bottom: 24rpx;
+  opacity: 0.8;
+}
+.video-ph__play::after {
+  content: '';
+  position: absolute;
+  left: 34rpx;
+  top: 26rpx;
+  width: 0;
+  height: 0;
+  border-left: 28rpx solid var(--xl-gold);
+  border-top: 18rpx solid transparent;
+  border-bottom: 18rpx solid transparent;
+}
+.video-ph__text {
+  font-size: 28rpx;
+  color: var(--xl-text-sub);
+}
+.video-ph__sub {
+  margin-top: 8rpx;
+  font-size: 22rpx;
+  color: var(--xl-text-faint);
+}
+.video-err {
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  color: var(--xl-danger);
+  text-align: center;
+}
