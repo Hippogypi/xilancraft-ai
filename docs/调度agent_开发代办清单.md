@@ -13,7 +13,7 @@
 ## 〇、决策基线（已锁定，不再讨论）
 
 - [x] 生图 API：智谱 CogView，`openai_compatible` 生图协议；默认模型 **`cogview-3-flash`（免费）**，管理端可切 `cogview-4`（付费慎用）；开发期用 mock 适配器
-- [x] 小程序 AppID：测试号 `wxbc06ada82397114b`（写入 `project.config.json`）
+- [x] 小程序 AppID：测试号（真实值存 `miniprogram/project.private.config.json`，gitignore 不入库；仓库内 `project.config.json` 用 `touristappid` 占位。GitHub 曾对其误报 secret，已按测试用途关闭告警）
 - [x] 砍掉：TD 纹样动画（WBS 02.04 / 11.02，纯装饰）
 - [x] 图生图（P1）：智谱无免费图生图 → 实现为「选参考纹样→关键词注入文生图提示词」的近似方案，真·图生图留 Provider 扩展位
 - [x] Git 策略：main 分支小步直推，conventional commits
@@ -24,14 +24,14 @@
 
 ## 一、阶段 0：基线（主控自做）
 
-- [ ] 0.1 提交现有 docs（V5.1 规格书 + UI 全景图 + 删除旧版文档）并推送
-- [ ] 0.2 素材归位：`loom_weaving.mp4`、`白色服装透明底单件素材_15件/` → `assets_raw/`（gitignored）
-- [ ] 0.3 下载便携 Node.js LTS 至 `tools/node`，验证 `node -v` / `npm -v` 可用
-- [ ] 0.4 建仓库骨架：`miniprogram/ server/ shared/ assets_raw/ tools/ scripts/` + `.gitignore`（node_modules、server/data、.env*、tools/、assets_raw/）
-- [ ] 0.5 冻结 API 契约 → `shared/api-contract.md`（依据规格书 §6，前后端唯一依据）
-- [ ] 0.6 提炼 UI 规格 → `shared/UI-SPEC.md`（设计 token + 各页布局）
-- [ ] 0.7 README 骨架（启动指南占位）
-- [ ] 0.8 提交推送：`chore: 工程骨架与契约基线`
+- [x] 0.1 提交现有 docs（V5.1 规格书 + UI 全景图 + 删除旧版文档）并推送
+- [x] 0.2 素材归位：`loom_weaving.mp4`、`白色服装透明底单件素材_15件/` → `assets_raw/`（gitignored）
+- [x] 0.3 下载便携 Node.js LTS 至 `tools/node`，验证 `node -v` / `npm -v` 可用（v22.23.4 / npm 10.9.9）
+- [x] 0.4 建仓库骨架：`miniprogram/ server/ shared/ assets_raw/ tools/ scripts/` + `.gitignore`（node_modules、server/data、.env*、tools/、assets_raw/、project.private.config.json）
+- [x] 0.5 冻结 API 契约 → `shared/api-contract.md`（依据规格书 §6，前后端唯一依据）
+- [x] 0.6 提炼 UI 规格 → `shared/UI-SPEC.md`（设计 token + 各页布局）
+- [x] 0.7 README 骨架（启动指南占位）
+- [x] 0.8 提交推送：`chore: 工程骨架与契约基线`
 
 ## 二、阶段 1：后端纵切（1 个 subagent）
 
@@ -105,7 +105,7 @@
 
 ## 七、用户侧待办
 
-- [x] 提供测试号 AppID：`wxbc06ada82397114b`
+- [x] 提供测试号 AppID（已转存私有配置文件，仓库内不再出现明文）
 - [x] 注册智谱 API Key（已持有，演示时管理端录入）
 - [x] 提供素材：织机 MP4 + 15 件服装透明底 PNG（已放仓库根目录，待归位 `assets_raw/`）
 - [ ] 按各阶段「人工验证清单」在微信开发者工具中执行并反馈（阶段 2 起）
@@ -116,3 +116,5 @@
 |---|---|---|
 | 2026-11-08 | 计划定稿：砍 TD 动画；智谱 CogView；测试号 AppID；main 直推 | — |
 | 2026-11-08 | 素材到位：loom_weaving.mp4（7.3MB）+ 白色服装透明底 15 件 | — |
+| 2026-11-08 | GitHub secret 扫描误报测试号 AppID：文档改掩码、真实值移入 gitignore 的 project.private.config.json | 本次 |
+| 2026-11-08 | 阶段 0 完成：便携 Node v22.23.4、骨架、API 契约与 UI-SPEC 冻结；开发者工具 CLI 位于 D:\Program Files (x86)\Tencent\微信web开发者工具 | 本次 |
