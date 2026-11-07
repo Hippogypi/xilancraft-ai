@@ -6,6 +6,7 @@
 ## 1. 基础约定
 
 - Base URL：开发/演示 `http://127.0.0.1:3000`（小程序端在 `miniprogram/config/env.js` 中统一维护）
+- **字段命名：HTTP 请求/响应 JSON 一律驼峰**（如 `adapterType`、`baseUrl`、`modelId`、`hasApiKey`）；snake_case 仅存在于 SQLite 数据库列名，服务端负责转换。
 - Content-Type：`application/json`（上传接口除外，multipart/form-data）
 - 每个响应带 `requestId`（服务端生成，响应头 `X-Request-Id` 同值）
 - 统一响应包络：
