@@ -1,5 +1,6 @@
 {
   "navigationBarTitleText": "订单管理",
+  "enablePullDownRefresh": true,
   "usingComponents": {
     "xl-button": "/components/xl-button/index",
     "xl-card": "/components/xl-card/index",

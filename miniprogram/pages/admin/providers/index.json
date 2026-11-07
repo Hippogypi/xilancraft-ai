@@ -1,5 +1,6 @@
 {
   "navigationBarTitleText": "AI 接口配置",
+  "enablePullDownRefresh": true,
   "usingComponents": {
     "xl-button": "/components/xl-button/index",
     "xl-card": "/components/xl-card/index",

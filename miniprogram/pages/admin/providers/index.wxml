@@ -7,29 +7,70 @@
 
   <text class="xl-text-sub prov-tip">配置生图服务（Provider），激活后用户端生成将使用该服务；同一时刻仅一个激活项。</text>
 
-  <!-- TODO(阶段3): onLoad 调 api.get('/api/admin/providers') 填充 list -->
-  <block wx:if="{{list.length}}">
+  <xl-loading wx:if="{{loading && !list.length}}" text="加载配置中…"></xl-loading>
+
+  <block wx:if="{{!loading && list.length}}">
     <view class="xl-card prov" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="goEdit">
       <view class="prov__row1">
         <text class="prov__name">{{item.name}}</text>
-        <view wx:if="{{item.active}}" class="xl-tag xl-tag--gold">激活</view>
+        <view wx:if="{{item.active}}" class="xl-tag xl-tag--gold">使用中</view>
       </view>
       <view class="prov__meta">
-        <text class="prov__type">{{item.adapter_type}}</text>
-        <text class="prov__model">{{item.model_id}}</text>
+        <text class="prov__type">{{item.adapterType}}</text>
+        <text class="prov__model">{{item.modelId || '（未设置模型）'}}</text>
+        <text wx:if="{{item.hasApiKey}}" class="prov__key">已配密钥</text>
       </view>
       <view class="prov__foot">
         <xl-status-dot
-          type="{{item.last_test_status === 'success' ? 'success' : item.last_test_status === 'failed' ? 'failed' : 'pending'}}"
-          label="{{item.last_test_status === 'success' ? '测试成功' : item.last_test_status === 'failed' ? '测试失败' : '未测试'}}"
+          type="{{item.lastTestStatus === 'success' ? 'success' : item.lastTestStatus === 'failed' ? 'failed' : 'pending'}}"
+          label="{{item.lastTestStatus === 'success' ? '测试成功' : item.lastTestStatus === 'failed' ? '测试失败' : '未测试'}}"
         ></xl-status-dot>
         <text class="xl-text-faint">点击编辑 ›</text>
+      </view>
+
+      <!-- 操作行：测试生成 / 激活（组件 tap 事件不冒泡，不会触发卡片进编辑页） -->
+      <view class="prov__ops">
+        <xl-button
+          class="prov__op"
+          type="mini"
+          text="测试生成"
+          data-id="{{item.id}}"
+          loading="{{testingId === item.id}}"
+          disabled="{{testingId !== ''}}"
+          bind:tap="onTest"
+        ></xl-button>
+        <xl-button
+          wx:if="{{!item.active}}"
+          class="prov__op"
+          type="mini"
+          text="激活"
+          data-id="{{item.id}}"
+          loading="{{activatingId === item.id}}"
+          disabled="{{activatingId !== ''}}"
+          bind:tap="onActivate"
+        ></xl-button>
+      </view>
+
+      <!-- 最近一次测试结果（耗时 + 缩略图 / 错误信息） -->
+      <view wx:if="{{testView && testView.providerId === item.id}}" class="prov__test">
+        <view class="prov__test-thumb xl-weave">
+          <image wx:if="{{testView.imageUrl}}" class="prov__test-img" src="{{testView.imageUrl}}" mode="aspectFill"></image>
+          <view wx:else class="prov__test-ph"></view>
+        </view>
+        <view class="prov__test-info">
+          <xl-status-dot
+            type="{{testView.status === 'success' ? 'success' : 'failed'}}"
+            label="{{testView.status === 'success' ? '连接成功' : '测试失败'}}"
+          ></xl-status-dot>
+          <text class="prov__test-meta">耗时 {{testView.durationMs}}ms</text>
+          <text wx:if="{{testView.error}}" class="prov__test-err">{{testView.error.code}}：{{testView.error.message}}</text>
+        </view>
       </view>
     </view>
   </block>
 
   <!-- 空数据态 -->
-  <xl-empty wx:else text="暂无 AI 服务配置，点击下方按钮新增"></xl-empty>
+  <xl-empty wx:if="{{!loading && !list.length}}" text="暂无 AI 服务配置，点击下方按钮新增"></xl-empty>
 
   <!-- 底部新增按钮 -->
   <view class="xl-actions prov-add">

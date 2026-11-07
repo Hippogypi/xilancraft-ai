@@ -1,3 +1,29 @@
+/* 页头标题 + 使用中徽标 */
+.pe-head {
+  display: flex;
+  align-items: center;
+}
+.pe-head .xl-tag {
+  margin-left: 16rpx;
+}
+
+/* API Key 状态标（编辑态显示 已配置密钥 / 未配置） */
+.pe-key-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+.pe-key-label {
+  margin-bottom: 0;
+}
+.pe-key-state {
+  font-size: 22rpx;
+  color: var(--xl-text-faint);
+}
+.pe-key-state--on {
+  color: var(--xl-success);
+}
+
 /* picker 内嵌输入样式 */
 .pe-input {
   display: flex;
@@ -33,6 +59,17 @@
 .test__thumb-text {
   font-size: 20rpx;
   color: var(--xl-text-faint);
+}
+.test__img {
+  width: 100%;
+  height: 100%;
+}
+.test__ph {
+  width: 26rpx;
+  height: 26rpx;
+  border: 2rpx solid var(--xl-gold-40);
+  border-radius: 4rpx;
+  transform: rotate(45deg);
 }
 .test__info {
   flex: 1;

@@ -2,28 +2,52 @@
   <view class="xl-admin-badge">管理端</view>
   <view class="xl-page-head">
     <text class="xl-page-title">订单管理</text>
-    <text class="xl-text-faint">模拟订单</text>
+    <text class="xl-text-faint">共 {{total}} 单</text>
   </view>
 
-  <view class="xl-demo-note order-demo-tip">比赛演示 · 以下为占位模拟数据，阶段 3 接 GET /api/admin/orders</view>
+  <!-- 关键词搜索（订单号 / 客户姓名） -->
+  <view class="order-search">
+    <input
+      class="xl-input order-search__input"
+      value="{{keyword}}"
+      bindinput="onKeywordInput"
+      bindconfirm="onSearch"
+      confirm-type="search"
+      placeholder="搜索订单号 / 客户姓名"
+      placeholder-class="xl-ph"
+    />
+    <view class="order-search__btn" bindtap="onSearch">搜索</view>
+  </view>
+
+  <!-- 状态筛选 chips：全部 / 待处理 / 设计确认 / 已完成 -->
+  <xl-chips options="{{filters}}" value="{{filter}}" bind:change="onFilterChange"></xl-chips>
+
+  <xl-loading wx:if="{{loading}}" text="加载订单中…"></xl-loading>
 
   <!-- 订单列表：订单号 / 款式 / 尺码 / 状态 tag -->
-  <block wx:if="{{list.length}}">
+  <block wx:if="{{!loading && list.length}}">
     <view class="xl-card order" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="goDetail">
       <view class="order__row1">
         <text class="order__no">{{item.orderNo}}</text>
         <view class="xl-tag {{statusTagClass[item.status]}}">{{statusText[item.status]}}</view>
       </view>
       <view class="order__meta">
-        <text>{{item.customer}} · {{item.garment}} · {{item.size}} 码 × {{item.quantity}}</text>
+        <text>{{item.customerName}} · {{item.garmentName}}（{{item.garmentTemplateId}}） · {{item.size}} 码 × {{item.quantity}}</text>
       </view>
       <view class="order__foot">
-        <text class="xl-text-faint">{{item.createdAt}}</text>
+        <text class="xl-text-faint">{{item.timeText}}</text>
         <text class="order__more">详情 ›</text>
       </view>
     </view>
-  </block>
-  <xl-empty wx:else text="暂无订单"></xl-empty>
 
-  <view class="xl-demo-note">待处理 → 设计确认 → 已完成（单向流转）</view>
+    <!-- 加载更多 -->
+    <view wx:if="{{list.length < total}}" class="xl-actions order-more">
+      <xl-button type="mini" text="加载更多（{{list.length}}/{{total}}）" loading="{{loadingMore}}" disabled="{{loadingMore}}" bind:tap="onLoadMore"></xl-button>
+    </view>
+    <view wx:else class="order-end xl-text-faint">已全部加载（{{total}} 单）</view>
+  </block>
+
+  <xl-empty wx:if="{{!loading && !list.length}}" text="暂无符合条件的订单"></xl-empty>
+
+  <view class="xl-demo-note">比赛演示 · 模拟订单 · 待处理 → 设计确认 → 已完成（单向流转）</view>
 </view>

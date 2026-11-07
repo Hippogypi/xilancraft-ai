@@ -4,6 +4,13 @@
     <text class="xl-text-faint">AI 共创西兰卡普新纹样</text>
   </view>
 
+  <!-- 参考纹样标签（素材库「以此为灵感」带入或本页选择），点 ✕ 移除 -->
+  <view wx:if="{{referenceMotifId}}" class="ref-tag" catchtap="onRemoveReference">
+    <view class="ref-tag__mark"></view>
+    <text class="ref-tag__text">参考纹样：{{referenceMotifName}}</text>
+    <view class="ref-tag__close">✕</view>
+  </view>
+
   <!-- ① 提示词 textarea（200 字上限） -->
   <xl-card title="创意提示词">
     <textarea
@@ -11,7 +18,7 @@
       value="{{prompt}}"
       maxlength="200"
       bindinput="onPromptInput"
-      placeholder="例：解构四十八勾纹样，几何重组为街头潮流卫衣胸前印花，黑金配色，主体清晰"
+      placeholder="例：结合四十八勾的菱形骨架，几何重组为黑金配色的街头卫衣胸前印花，主体醒目"
       placeholder-class="xl-ph"
     ></textarea>
     <view class="prompt-count">{{prompt.length}}/200</view>
@@ -22,9 +29,20 @@
     <xl-chips options="{{styles}}" value="{{styleValue}}" bind:change="onStyleChange"></xl-chips>
   </xl-card>
 
-  <!-- ③ 配色 chips -->
+  <!-- ③ 配色 chips（自定义附输入框） -->
   <xl-card title="配色方案">
     <xl-chips options="{{palettes}}" value="{{paletteValue}}" bind:change="onPaletteChange"></xl-chips>
+    <view wx:if="{{paletteValue === 'custom'}}" class="custom-palette">
+      <input
+        class="xl-input custom-palette__input"
+        value="{{customPalette}}"
+        maxlength="12"
+        bindinput="onCustomPaletteInput"
+        placeholder="填写自定义配色，如：暖棕大地色"
+        placeholder-class="xl-ph"
+      />
+      <text class="xl-text-faint">留空时按「自由配色」提交</text>
+    </view>
   </xl-card>
 
   <!-- ④ 应用部位 chips -->
@@ -59,16 +77,16 @@
         </view>
       </view>
     </scroll-view>
-    <text wx:if="{{referenceMotifName}}" class="xl-text-faint">已选参考：{{referenceMotifName}}（生成时将注入纹样关键词）</text>
+    <text class="xl-text-faint ref-hint">选择后生成请求将携带 referenceMotifId，并把纹样名称与关键词注入提示词</text>
   </xl-card>
 
   <!-- ⑧ 免费额度/限频提示位 -->
   <view class="quota-note">
     <view class="quota-note__mark"></view>
-    <text class="quota-note__text">比赛演示期间每日免费生成次数有限，生成约需 10~120 秒，请耐心等待、避免连点。</text>
+    <text class="quota-note__text">比赛演示期间每日免费生成次数有限，生成约需数十秒，请耐心等待、避免连点。</text>
   </view>
 
-  <!-- ⑥ 大号生成按钮 -->
+  <!-- ⑥ 大号生成按钮（running 时 disabled + loading 防重复） -->
   <view class="xl-actions">
     <xl-button
       type="primary"
@@ -79,14 +97,14 @@
     ></xl-button>
   </view>
 
-  <!-- ⑦ 状态区：生成中 / 成功 / 失败 -->
+  <!-- ⑦ 状态区：生成中 / 成功 / 失败（超时、额度不足同失败态，文案按错误码映射） -->
   <view class="gen-status">
     <!-- 生成中 -->
     <block wx:if="{{genStatus === 'running'}}">
       <xl-card>
-        <xl-loading text="AI 正在织造新纹样，约需 10~120 秒…"></xl-loading>
+        <xl-loading text="AI 正在创作，约需数十秒…"></xl-loading>
         <view class="gen-cancel-hint">
-          <xl-status-dot type="running" label="任务进行中，可稍作等待"></xl-status-dot>
+          <xl-status-dot type="running" label="任务进行中，请稍候"></xl-status-dot>
           <text class="xl-text-faint">请勿重复提交，以免超出每日免费额度</text>
         </view>
       </xl-card>
@@ -97,11 +115,8 @@
       <xl-card title="生成结果">
         <view class="gen-result__imgwrap xl-weave">
           <image wx:if="{{genResult.imageUrl}}" class="gen-result__img" src="{{genResult.imageUrl}}" mode="aspectFit"></image>
-          <block wx:else>
-            <view class="gen-result__ph"></view>
-            <text class="gen-result__ph-text">结果图占位（阶段 3 接真实生成后展示 AI 图片）</text>
-          </block>
         </view>
+        <view class="gen-prompt-link" bindtap="onViewPrompt">查看提交的完整提示词</view>
         <view class="xl-actions xl-actions--pair">
           <xl-button type="ghost" text="重新生成" bind:tap="onGenerate"></xl-button>
           <xl-button type="primary" text="用此纹样 → 定制" bind:tap="onUsePattern"></xl-button>
@@ -109,7 +124,7 @@
       </xl-card>
     </block>
 
-    <!-- 失败 -->
+    <!-- 失败 / 超时 / 额度不足 -->
     <block wx:elif="{{genStatus === 'failed'}}">
       <xl-card title="生成失败">
         <view class="gen-error">
@@ -119,7 +134,7 @@
         <view class="xl-actions">
           <xl-button type="ghost" text="重试" bind:tap="onGenerate"></xl-button>
         </view>
-        <text class="xl-text-faint gen-error__tip">多次失败可联系工作人员在管理端切换 AI 服务</text>
+        <text class="xl-text-faint gen-error__tip">若持续失败，工作人员可在管理端切换 AI 服务</text>
       </xl-card>
     </block>
   </view>

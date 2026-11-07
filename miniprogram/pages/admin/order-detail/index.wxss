@@ -59,6 +59,10 @@
   font-size: 22rpx;
   color: var(--xl-text-faint);
 }
+.od__snapshot-img {
+  width: 100%;
+  height: 100%;
+}
 
 /* 状态流转步骤条 */
 .od__flow {

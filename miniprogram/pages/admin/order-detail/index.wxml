@@ -1,58 +1,92 @@
 <view class="xl-page">
   <view class="xl-admin-badge">管理端</view>
-  <view class="xl-page-head">
-    <text class="xl-page-title">订单详情</text>
-    <view class="xl-tag {{statusTagClass[order.status]}}">{{statusText[order.status]}}</view>
-  </view>
 
-  <!-- 订单信息 -->
-  <xl-card title="订单信息">
-    <view class="od__no-wrap">
-      <text class="od__no">{{order.orderNo}}</text>
+  <xl-loading wx:if="{{loading}}" text="加载订单中…"></xl-loading>
+
+  <block wx:if="{{!loading && order}}">
+    <view class="xl-page-head">
+      <text class="xl-page-title">订单详情</text>
+      <view class="xl-tag {{statusTagClass[order.status]}}">{{statusText[order.status]}}</view>
     </view>
-    <view class="od__row"><text class="od__label">款式</text><text class="od__value">{{order.garment}}（{{order.garmentId}}）</text></view>
-    <view class="od__row"><text class="od__label">尺码</text><text class="od__value">{{order.size}}</text></view>
-    <view class="od__row"><text class="od__label">数量</text><text class="od__value">{{order.quantity}}</text></view>
-    <view class="od__row od__row--last"><text class="od__label">提交时间</text><text class="od__value">{{order.createdAt}}</text></view>
-  </xl-card>
 
-  <!-- 纹样快照（阶段3取 pattern_image_path） -->
-  <xl-card title="纹样快照">
-    <view class="od__snapshot xl-weave">
-      <view class="od__snapshot-core"></view>
-      <text class="od__snapshot-text">纹样图片占位（阶段 3 取订单快照图）</text>
-    </view>
-  </xl-card>
-
-  <!-- 客户信息 -->
-  <xl-card title="客户信息">
-    <view class="od__row"><text class="od__label">姓名</text><text class="od__value">{{order.customer}}</text></view>
-    <view class="od__row od__row--last"><text class="od__label">联系方式</text><text class="od__value">{{order.contact}}</text></view>
-  </xl-card>
-
-  <!-- 状态流转：待处理 → 设计确认 → 已完成（单向） -->
-  <xl-card title="状态流转">
-    <view class="od__flow">
-      <view class="od__flow-step {{order.status === 'pending' || order.status === 'confirming' || order.status === 'completed' ? 'od__flow-step--on' : ''}}">
-        <view class="od__flow-dot"></view>
-        <text class="od__flow-name">待处理</text>
+    <!-- 订单信息 -->
+    <xl-card title="订单信息">
+      <view class="od__no-wrap">
+        <text class="od__no">{{order.orderNo}}</text>
       </view>
-      <view class="od__flow-line {{order.status === 'confirming' || order.status === 'completed' ? 'od__flow-line--on' : ''}}"></view>
-      <view class="od__flow-step {{order.status === 'confirming' || order.status === 'completed' ? 'od__flow-step--on' : ''}}">
-        <view class="od__flow-dot"></view>
-        <text class="od__flow-name">设计确认</text>
-      </view>
-      <view class="od__flow-line {{order.status === 'completed' ? 'od__flow-line--on' : ''}}"></view>
-      <view class="od__flow-step {{order.status === 'completed' ? 'od__flow-step--on' : ''}}">
-        <view class="od__flow-dot"></view>
-        <text class="od__flow-name">已完成</text>
-      </view>
-    </view>
-    <view class="xl-actions" wx:if="{{nextStatus}}">
-      <xl-button type="primary" text="流转为：{{nextStatus.label}}" loading="{{advancing}}" disabled="{{advancing}}" bind:tap="onAdvance"></xl-button>
-    </view>
-    <text wx:else class="xl-text-faint od__done">订单已完成，无后续流转</text>
-  </xl-card>
+      <view class="od__row"><text class="od__label">款式</text><text class="od__value">{{order.garmentName}}（{{order.garmentTemplateId}}）</text></view>
+      <view class="od__row"><text class="od__label">尺码</text><text class="od__value">{{order.size}}</text></view>
+      <view class="od__row"><text class="od__label">数量</text><text class="od__value">{{order.quantity}}</text></view>
+      <view class="od__row"><text class="od__label">关联生成任务</text><text class="od__value">{{order.generationJobId || '—'}}</text></view>
+      <view class="od__row od__row--last"><text class="od__label">提交时间</text><text class="od__value">{{order.timeText}}</text></view>
+    </xl-card>
 
-  <view class="xl-demo-note">比赛演示 · 模拟数据 · 阶段 3 接 PATCH /api/admin/orders/:id/status</view>
+    <!-- 纹样快照（patternImageUrl 拼 BASE_URL） -->
+    <xl-card title="纹样快照">
+      <view class="od__snapshot xl-weave">
+        <image wx:if="{{order.patternImageFull}}" class="od__snapshot-img" src="{{order.patternImageFull}}" mode="aspectFit"></image>
+        <block wx:else>
+          <view class="od__snapshot-core"></view>
+          <text class="od__snapshot-text">该订单未关联纹样图</text>
+        </block>
+      </view>
+    </xl-card>
+
+    <!-- 客户信息 -->
+    <xl-card title="客户信息">
+      <view class="od__row"><text class="od__label">姓名</text><text class="od__value">{{order.customerName}}</text></view>
+      <view class="od__row od__row--last"><text class="od__label">联系方式</text><text class="od__value">{{order.contact}}</text></view>
+    </xl-card>
+
+    <!-- 印花位置参数（placement） -->
+    <xl-card wx:if="{{placementRows.length}}" title="印花位置参数">
+      <view class="od__row {{index === placementRows.length - 1 ? 'od__row--last' : ''}}" wx:for="{{placementRows}}" wx:key="label">
+        <text class="od__label">{{item.label}}</text>
+        <text class="od__value">{{item.value}}</text>
+      </view>
+    </xl-card>
+
+    <!-- 状态流转：待处理 → 设计确认 → 已完成（单向） -->
+    <xl-card title="状态流转">
+      <view class="od__flow">
+        <view class="od__flow-step {{order.status === 'pending' || order.status === 'confirming' || order.status === 'completed' ? 'od__flow-step--on' : ''}}">
+          <view class="od__flow-dot"></view>
+          <text class="od__flow-name">待处理</text>
+        </view>
+        <view class="od__flow-line {{order.status === 'confirming' || order.status === 'completed' ? 'od__flow-line--on' : ''}}"></view>
+        <view class="od__flow-step {{order.status === 'confirming' || order.status === 'completed' ? 'od__flow-step--on' : ''}}">
+          <view class="od__flow-dot"></view>
+          <text class="od__flow-name">设计确认</text>
+        </view>
+        <view class="od__flow-line {{order.status === 'completed' ? 'od__flow-line--on' : ''}}"></view>
+        <view class="od__flow-step {{order.status === 'completed' ? 'od__flow-step--on' : ''}}">
+          <view class="od__flow-dot"></view>
+          <text class="od__flow-name">已完成</text>
+        </view>
+      </view>
+
+      <!-- 流转按钮组：pending→确认设计；confirming→标记完成；其余禁用 -->
+      <view class="xl-actions xl-actions--pair">
+        <xl-button
+          type="ghost"
+          text="确认设计"
+          loading="{{advancing && action.status === 'confirming'}}"
+          disabled="{{advancing || order.status !== 'pending'}}"
+          bind:tap="onAdvance"
+        ></xl-button>
+        <xl-button
+          type="primary"
+          text="标记完成"
+          loading="{{advancing && action.status === 'completed'}}"
+          disabled="{{advancing || order.status !== 'confirming'}}"
+          bind:tap="onAdvance"
+        ></xl-button>
+      </view>
+      <text wx:if="{{order.status === 'completed'}}" class="xl-text-faint od__done">订单已完成，无后续流转</text>
+    </xl-card>
+
+    <view class="xl-demo-note">比赛演示 · 模拟订单 · 最后更新 {{order.updatedText}}</view>
+  </block>
+
+  <xl-empty wx:if="{{!loading && !order}}" text="订单不存在或已删除"></xl-empty>
 </view>

@@ -1,4 +1,24 @@
-/* P2 统计卡占位（三格） */
+/* 页头：左标题列 + 右上角退出登录 */
+.home-head__left {
+  display: flex;
+  flex-direction: column;
+}
+.home-head__sub {
+  margin-top: 4rpx;
+}
+.home-logout {
+  flex-shrink: 0;
+  font-size: 24rpx;
+  color: var(--xl-gold);
+  border: 1rpx solid var(--xl-gold-40);
+  border-radius: 999rpx;
+  padding: 8rpx 24rpx;
+}
+.home-logout--busy {
+  opacity: 0.5;
+}
+
+/* 统计卡（三格） */
 .stats {
   display: flex;
   margin-bottom: 24rpx;

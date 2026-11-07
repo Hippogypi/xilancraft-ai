@@ -60,6 +60,28 @@
   font-size: 20rpx;
 }
 
+/* 失败记录的错误码（替代提示词行） */
+.gen__err {
+  margin-top: 6rpx;
+  font-size: 24rpx;
+  color: var(--xl-danger);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+/* 加载更多 / 全部加载完 */
+.gen-more {
+  margin-top: 32rpx;
+  display: flex;
+  justify-content: center;
+}
+.gen-end {
+  margin-top: 28rpx;
+  text-align: center;
+  font-size: 22rpx;
+}
+
 /* 详情弹层 */
 .gdetail__row {
   display: flex;

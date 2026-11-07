@@ -1,81 +1,87 @@
 /**
- * pages/admin/order-detail —— 订单详情 + 状态流转
- * 阶段2底座：占位数据本地流转；阶段3接入
- *   GET /api/admin/orders/:id、PATCH /api/admin/orders/:id/status（仅 pending→confirming→completed 单向）
+ * pages/admin/order-detail —— 订单详情 + 状态流转（阶段3：真实接口）
+ * - GET   /api/admin/orders/:id        详情（纹样快照 patternImageUrl 拼 BASE_URL）
+ * - PATCH /api/admin/orders/:id/status body {status}
+ *   仅允许 pending → confirming（确认设计）→ completed（标记完成）单向流转；
+ *   操作成功后重新拉取详情刷新
  */
-const adminAuth = require('../../../services/admin-auth.js');
+const api = require('../../../services/api.js');
+const common = require('../common.js');
+const assetUrl = require('../../../utils/url.js').absoluteUrl;
 
-// 占位数据（与列表页一致，阶段3移除）
-const DEMO_ORDERS = [
-  {
-    id: 'demo-1',
-    orderNo: 'XLKP-20261108-0001',
-    customer: '演示用户',
-    contact: '13800000000',
-    garment: '现代卫衣',
-    garmentId: 'hoodie-001',
-    size: 'L',
-    quantity: 1,
-    status: 'pending',
-    createdAt: '2026-11-08 10:00'
-  },
-  {
-    id: 'demo-2',
-    orderNo: 'XLKP-20261108-0002',
-    customer: '张三',
-    contact: '13900000000',
-    garment: '基础圆领T恤',
-    garmentId: 'tee-001',
-    size: 'M',
-    quantity: 2,
-    status: 'confirming',
-    createdAt: '2026-11-08 11:30'
-  }
-];
-
-const FLOW = [
-  { value: 'pending', label: '待处理' },
-  { value: 'confirming', label: '设计确认' },
-  { value: 'completed', label: '已完成' }
-];
+/** placement 参数 → 展示行 */
+function placementRows(placement) {
+  if (!placement) return [];
+  const rows = [];
+  if (placement.scale !== undefined) rows.push({ label: '纹样缩放', value: '× ' + placement.scale });
+  if (placement.offsetX !== undefined) rows.push({ label: '水平偏移', value: placement.offsetX + ' px' });
+  if (placement.offsetY !== undefined) rows.push({ label: '垂直偏移', value: placement.offsetY + ' px' });
+  if (placement.opacity !== undefined) rows.push({ label: '不透明度', value: Math.round(placement.opacity * 100) + '%' });
+  return rows;
+}
 
 Page({
   data: {
-    order: null,
-    nextStatus: null,
+    orderId: '',
+    loading: true,
+    order: null, // 序列化后含展示字段
+    placementRows: [],
     advancing: false,
-    statusText: { pending: '待处理', confirming: '设计确认', completed: '已完成' },
-    statusTagClass: { pending: 'xl-tag--warn', confirming: 'xl-tag--info', completed: 'xl-tag--success' }
+    statusText: common.ORDER_STATUS_TEXT,
+    statusTagClass: common.ORDER_STATUS_TAG,
+    action: common.ORDER_NEXT.pending // { status, label } 或 null
   },
 
   onLoad(options) {
-    if (!adminAuth.isLogged()) {
-      wx.redirectTo({ url: '/pages/admin/login/index' });
-      return;
-    }
-    // TODO(阶段3): api.get('/api/admin/orders/' + options.id)
-    const id = options && options.id;
-    const order = DEMO_ORDERS.find(function (o) { return o.id === id; }) || DEMO_ORDERS[0];
-    this.applyOrder(order);
+    if (!common.requireLogin()) return;
+    const id = (options && options.id) || '';
+    this.setData({ orderId: id });
+    this.fetchDetail();
+  },
+
+  fetchDetail() {
+    const that = this;
+    api
+      .get('/api/admin/orders/' + this.data.orderId)
+      .then(function (res) {
+        that.applyOrder(res);
+      })
+      .catch(function (err) {
+        that.setData({ loading: false });
+        common.onApiError(err);
+      });
   },
 
   applyOrder(order) {
-    const idx = FLOW.findIndex(function (f) { return f.value === order.status; });
-    const nextStatus = idx >= 0 && idx < FLOW.length - 1 ? FLOW[idx + 1] : null;
-    this.setData({ order: order, nextStatus: nextStatus });
+    this.setData({
+      loading: false,
+      order: Object.assign({}, order, {
+        patternImageFull: assetUrl(order.patternImageUrl),
+        garmentName: common.garmentName(order.garmentTemplateId),
+        timeText: common.formatTime(order.createdAt),
+        updatedText: common.formatTime(order.updatedAt)
+      }),
+      placementRows: placementRows(order.placement),
+      action: common.ORDER_NEXT[order.status] || null
+    });
   },
 
-  /** 状态流转（本地演示）；阶段3改 PATCH /api/admin/orders/:id/status body { status: next } */
+  /** 状态流转：pending→确认设计(confirming) / confirming→标记完成(completed) */
   onAdvance() {
-    if (this.data.advancing || !this.data.nextStatus) return;
-    this.setData({ advancing: true });
+    const action = this.data.action;
+    if (this.data.advancing || !action || !this.data.order) return;
     const that = this;
-    // TODO(阶段3): api.patch('/api/admin/orders/' + order.id + '/status', { status: nextStatus.value })
-    setTimeout(function () {
-      const order = Object.assign({}, that.data.order, { status: that.data.nextStatus.value });
-      that.applyOrder(order);
-      that.setData({ advancing: false });
-      wx.showToast({ title: '已流转（阶段3接真实接口）', icon: 'none' });
-    }, 400);
+    this.setData({ advancing: true });
+    api
+      .patch('/api/admin/orders/' + this.data.order.id + '/status', { status: action.status })
+      .then(function (res) {
+        that.setData({ advancing: false });
+        wx.showToast({ title: '已' + action.label, icon: 'success' });
+        that.applyOrder(res); // 接口返回更新后的订单，直接应用（并刷新按钮态）
+      })
+      .catch(function (err) {
+        that.setData({ advancing: false });
+        common.onApiError(err, '流转失败，请重试');
+      });
   }
 });

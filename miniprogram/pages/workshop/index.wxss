@@ -1,3 +1,35 @@
+/* ============ 参考纹样可移除标签 ============ */
+.ref-tag {
+  display: flex;
+  align-items: center;
+  padding: 14rpx 20rpx;
+  margin-bottom: 24rpx;
+  border: 1rpx solid var(--xl-gold);
+  border-radius: 999rpx;
+  background: rgba(201, 160, 99, 0.12);
+}
+.ref-tag__mark {
+  width: 14rpx;
+  height: 14rpx;
+  background: var(--xl-gold);
+  transform: rotate(45deg);
+  border-radius: 2rpx;
+  margin-right: 14rpx;
+}
+.ref-tag__text {
+  flex: 1;
+  font-size: 24rpx;
+  color: var(--xl-gold);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.ref-tag__close {
+  padding: 4rpx 4rpx 4rpx 16rpx;
+  font-size: 24rpx;
+  color: var(--xl-text-sub);
+}
+
 /* ============ 提示词输入 ============ */
 .prompt-input {
   width: 100%;
@@ -16,6 +48,14 @@
   text-align: right;
   font-size: 22rpx;
   color: var(--xl-text-faint);
+}
+
+/* ============ 自定义配色输入 ============ */
+.custom-palette {
+  margin-top: 20rpx;
+}
+.custom-palette__input {
+  margin-bottom: 10rpx;
 }
 
 /* ============ 参考纹样横滑条 ============ */
@@ -79,6 +119,10 @@
 .ref-item--active .ref-item__name {
   color: var(--xl-gold);
 }
+.ref-hint {
+  display: block;
+  margin-top: 14rpx;
+}
 
 /* ============ 免费额度/限频提示 ============ */
 .quota-note {
@@ -118,9 +162,9 @@
 .gen-cancel-hint .xl-text-faint {
   margin-top: 8rpx;
 }
-/* 成功结果图占位 */
+/* 成功结果图 */
 .gen-result__imgwrap {
-  height: 420rpx;
+  height: 640rpx;
   border-radius: 12rpx;
   border: 1rpx solid var(--xl-gold-40);
   background-color: var(--xl-bg-card-2);
@@ -134,29 +178,12 @@
   width: 100%;
   height: 100%;
 }
-.gen-result__ph {
-  width: 96rpx;
-  height: 96rpx;
-  border: 3rpx solid var(--xl-gold-40);
-  border-radius: 10rpx;
-  transform: rotate(45deg);
-  position: relative;
-}
-.gen-result__ph::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 32rpx;
-  height: 32rpx;
-  margin: -16rpx 0 0 -16rpx;
-  background: var(--xl-gold-40);
-  border-radius: 4rpx;
-}
-.gen-result__ph-text {
-  margin-top: 28rpx;
-  font-size: 22rpx;
-  color: var(--xl-text-faint);
+.gen-prompt-link {
+  margin-top: 14rpx;
+  text-align: center;
+  font-size: 24rpx;
+  color: var(--xl-text-sub);
+  text-decoration: underline;
 }
 /* 失败态 */
 .gen-error {

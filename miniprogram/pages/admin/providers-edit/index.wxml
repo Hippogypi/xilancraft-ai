@@ -1,71 +1,85 @@
 <view class="xl-page">
   <view class="xl-admin-badge">管理端</view>
   <view class="xl-page-head">
-    <text class="xl-page-title">{{isEdit ? '编辑配置' : '新增配置'}}</text>
+    <view class="pe-head">
+      <text class="xl-page-title">{{isEdit ? '编辑配置' : '新增配置'}}</text>
+      <view wx:if="{{isEdit && active}}" class="xl-tag xl-tag--gold">使用中</view>
+    </view>
     <text class="xl-text-faint">Provider</text>
   </view>
 
-  <xl-card title="基础信息">
-    <view class="xl-form-item">
-      <text class="xl-form-label">名称</text>
-      <input class="xl-input" value="{{name}}" bindinput="onNameInput" placeholder="如：智谱 CogView（免费）" placeholder-class="xl-ph" />
-    </view>
-    <view class="xl-form-item">
-      <text class="xl-form-label">适配器类型</text>
-      <picker range="{{adapterTypes}}" value="{{adapterIndex}}" bindchange="onAdapterChange">
-        <view class="xl-input pe-input">
-          <text class="pe-input__text">{{adapterTypes[adapterIndex]}}</text>
-          <text class="pe-input__arrow">▾</text>
-        </view>
-      </picker>
-    </view>
-    <view class="xl-form-item">
-      <text class="xl-form-label">Base URL</text>
-      <input class="xl-input" value="{{baseUrl}}" bindinput="onBaseUrlInput" placeholder="https://open.bigmodel.cn/api/paas/v4" placeholder-class="xl-ph" />
-    </view>
-    <view class="xl-form-item xl-form-item--last">
-      <text class="xl-form-label">模型 ID</text>
-      <input class="xl-input" value="{{modelId}}" bindinput="onModelIdInput" placeholder="cogview-3-flash" placeholder-class="xl-ph" />
-    </view>
-  </xl-card>
+  <xl-loading wx:if="{{loadingDetail}}" text="加载配置中…"></xl-loading>
 
-  <xl-card title="安全与限额">
-    <view class="xl-form-item">
-      <text class="xl-form-label">API Key</text>
-      <input class="xl-input" password value="{{apiKey}}" bindinput="onApiKeyInput" placeholder="留空 = 不修改" placeholder-class="xl-ph" />
-      <text class="xl-text-faint">密钥仅存服务端加密保存，此处永不回显完整旧值</text>
-    </view>
-    <view class="xl-form-item">
-      <text class="xl-form-label">超时时间（秒）</text>
-      <input class="xl-input" type="number" value="{{timeoutSec}}" bindinput="onTimeoutInput" placeholder="120" placeholder-class="xl-ph" />
-    </view>
-    <view class="xl-form-item xl-form-item--last">
-      <text class="xl-form-label">每日调用上限</text>
-      <input class="xl-input" type="number" value="{{dailyLimit}}" bindinput="onDailyLimitInput" placeholder="50" placeholder-class="xl-ph" />
-      <text class="xl-text-faint">免费额度护栏：超出后当日停止真实请求</text>
-    </view>
-  </xl-card>
-
-  <!-- 测试生成结果占位（显示耗时与结果缩略图） -->
-  <xl-card wx:if="{{testResult}}" title="最近一次测试生成">
-    <view class="test">
-      <view class="test__thumb xl-weave"><text class="test__thumb-text">缩略图占位</text></view>
-      <view class="test__info">
-        <xl-status-dot type="{{testResult.status === 'success' ? 'success' : 'failed'}}" label="{{testResult.status === 'success' ? '连接成功' : '测试失败'}}"></xl-status-dot>
-        <text class="test__meta">耗时：{{testResult.durationMs}}ms</text>
-        <text wx:if="{{testResult.error}}" class="test__err">{{testResult.error}}</text>
+  <block wx:if="{{!loadingDetail}}">
+    <xl-card title="基础信息">
+      <view class="xl-form-item">
+        <text class="xl-form-label">名称</text>
+        <input class="xl-input" value="{{name}}" bindinput="onNameInput" placeholder="如：智谱 CogView（免费）" placeholder-class="xl-ph" />
       </view>
+      <view class="xl-form-item">
+        <text class="xl-form-label">适配器类型</text>
+        <picker range="{{adapterTypes}}" value="{{adapterIndex}}" bindchange="onAdapterChange">
+          <view class="xl-input pe-input">
+            <text class="pe-input__text">{{adapterTypes[adapterIndex]}}</text>
+            <text class="pe-input__arrow">▾</text>
+          </view>
+        </picker>
+        <text class="xl-text-faint">mock 为本地联调适配器，无需下方 URL / 模型 / 密钥</text>
+      </view>
+      <view class="xl-form-item">
+        <text class="xl-form-label">Base URL</text>
+        <input class="xl-input" value="{{baseUrl}}" bindinput="onBaseUrlInput" placeholder="https://open.bigmodel.cn/api/paas/v4" placeholder-class="xl-ph" />
+      </view>
+      <view class="xl-form-item xl-form-item--last">
+        <text class="xl-form-label">模型 ID</text>
+        <input class="xl-input" value="{{modelId}}" bindinput="onModelIdInput" placeholder="cogview-3-flash（免费）" placeholder-class="xl-ph" />
+      </view>
+    </xl-card>
+
+    <xl-card title="安全与限额">
+      <view class="xl-form-item">
+        <view class="pe-key-head">
+          <text class="xl-form-label pe-key-label">API Key</text>
+          <text wx:if="{{isEdit}}" class="pe-key-state {{hasApiKey ? 'pe-key-state--on' : ''}}">{{hasApiKey ? '已配置密钥' : '未配置'}}</text>
+        </view>
+        <input class="xl-input" password value="{{apiKey}}" bindinput="onApiKeyInput" placeholder="留空 = 不修改；仅服务端加密存储" placeholder-class="xl-ph" />
+        <text class="xl-text-faint">密钥仅存服务端加密保存，此处永不回显完整旧值</text>
+      </view>
+      <view class="xl-form-item">
+        <text class="xl-form-label">超时时间（秒）</text>
+        <input class="xl-input" type="number" value="{{timeoutSec}}" bindinput="onTimeoutInput" placeholder="120" placeholder-class="xl-ph" />
+      </view>
+      <view class="xl-form-item xl-form-item--last">
+        <text class="xl-form-label">每日调用上限</text>
+        <input class="xl-input" type="number" value="{{dailyLimit}}" bindinput="onDailyLimitInput" placeholder="50" placeholder-class="xl-ph" />
+        <text class="xl-text-faint">免费额度护栏：超出后当日停止真实请求</text>
+      </view>
+    </xl-card>
+
+    <!-- 测试生成结果：耗时 + 结果缩略图 / 错误信息 -->
+    <xl-card wx:if="{{testResult}}" title="最近一次测试生成">
+      <view class="test">
+        <view class="test__thumb xl-weave">
+          <image wx:if="{{testResult.imageUrl}}" class="test__img" src="{{testResult.imageUrl}}" mode="aspectFill"></image>
+          <view wx:else class="test__ph"></view>
+        </view>
+        <view class="test__info">
+          <xl-status-dot type="{{testResult.status === 'success' ? 'success' : 'failed'}}" label="{{testResult.status === 'success' ? '连接成功' : '测试失败'}}"></xl-status-dot>
+          <text class="test__meta">耗时：{{testResult.durationMs}}ms</text>
+          <text wx:if="{{testResult.error}}" class="test__err">{{testResult.error.code}}：{{testResult.error.message}}</text>
+        </view>
+      </view>
+    </xl-card>
+
+    <!-- 操作按钮组：保存 / 测试生成 / 激活 -->
+    <view class="xl-actions xl-actions--pair">
+      <xl-button type="ghost" text="测试生成" loading="{{testing}}" disabled="{{testing}}" bind:tap="onTest"></xl-button>
+      <xl-button type="primary" text="保存配置" loading="{{saving}}" disabled="{{saving}}" bind:tap="onSave"></xl-button>
     </view>
-  </xl-card>
+    <view wx:if="{{isEdit}}" class="xl-actions">
+      <xl-button type="mini" text="激活此配置（设为当前生图服务）" loading="{{activating}}" disabled="{{activating || active}}" bind:tap="onActivate"></xl-button>
+    </view>
 
-  <!-- 操作按钮组：保存 / 测试生成 / 激活 -->
-  <view class="xl-actions xl-actions--pair">
-    <xl-button type="ghost" text="测试生成" loading="{{testing}}" disabled="{{testing}}" bind:tap="onTest"></xl-button>
-    <xl-button type="primary" text="保存配置" loading="{{saving}}" disabled="{{saving}}" bind:tap="onSave"></xl-button>
-  </view>
-  <view wx:if="{{isEdit}}" class="xl-actions">
-    <xl-button type="mini" text="激活此配置（设为当前生图服务）" bind:tap="onActivate"></xl-button>
-  </view>
-
-  <view class="xl-demo-note">比赛演示 · 零预算：启用前请确认免费额度</view>
+    <view class="xl-demo-note">比赛演示 · 零预算：启用前请确认免费额度</view>
+  </block>
 </view>

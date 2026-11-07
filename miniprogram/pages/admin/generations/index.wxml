@@ -2,37 +2,45 @@
   <view class="xl-admin-badge">管理端</view>
   <view class="xl-page-head">
     <text class="xl-page-title">生成记录</text>
-    <text class="xl-text-faint">历史任务</text>
+    <text class="xl-text-faint">共 {{total}} 条</text>
   </view>
 
-  <!-- 状态筛选 chips -->
+  <!-- 状态筛选 chips：全部 / 成功 / 失败 -->
   <xl-chips options="{{filters}}" value="{{filter}}" bind:change="onFilterChange"></xl-chips>
 
-  <!-- TODO(阶段3): api.get('/api/admin/generations?status=&page=&pageSize=') 分页拉取 -->
-  <block wx:if="{{list.length}}">
+  <xl-loading wx:if="{{loading}}" text="加载记录中…"></xl-loading>
+
+  <block wx:if="{{!loading && list.length}}">
     <view class="xl-card gen" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onItemTap">
       <view class="gen__thumb xl-weave">
-        <image wx:if="{{item.imageUrl}}" class="gen__img" src="{{item.imageUrl}}" mode="aspectFill"></image>
+        <image wx:if="{{item.imageUrlFull}}" class="gen__img" src="{{item.imageUrlFull}}" mode="aspectFill"></image>
         <view wx:else class="gen__thumb-ph"></view>
       </view>
       <view class="gen__info">
-        <text class="gen__time">{{item.createdAt}}</text>
-        <text class="gen__model">{{item.modelId}}</text>
-        <text class="gen__prompt">{{item.prompt}}</text>
+        <text class="gen__time">{{item.timeText}}</text>
+        <text class="gen__model">{{item.modelId || '（未知模型）'}}</text>
+        <text wx:if="{{item.status === 'failed' && item.errorCode}}" class="gen__err">{{item.errorCode}}</text>
+        <text wx:else class="gen__prompt">{{item.prompt}}</text>
       </view>
       <view class="gen__side">
-        <xl-status-dot
-          type="{{item.status === 'succeeded' ? 'success' : item.status === 'failed' ? 'failed' : 'running'}}"
-          label="{{item.status === 'succeeded' ? '成功' : item.status === 'failed' ? '失败' : '进行中'}}"
-        ></xl-status-dot>
+        <xl-status-dot type="{{item.status === 'succeeded' ? 'success' : item.status === 'failed' ? 'failed' : 'running'}}" label="{{item.statusText}}"></xl-status-dot>
         <text class="xl-text-faint">详情 ›</text>
       </view>
     </view>
-  </block>
-  <xl-empty wx:else text="暂无生成记录"></xl-empty>
 
-  <!-- 详情半屏弹层：提示词全文 / 错误码 -->
+    <!-- 加载更多 -->
+    <view wx:if="{{list.length < total}}" class="xl-actions gen-more">
+      <xl-button type="mini" text="加载更多（{{list.length}}/{{total}}）" loading="{{loadingMore}}" disabled="{{loadingMore}}" bind:tap="onLoadMore"></xl-button>
+    </view>
+    <view wx:else class="gen-end xl-text-faint">已全部加载（{{total}} 条）</view>
+  </block>
+
+  <!-- 空数据态 -->
+  <xl-empty wx:if="{{!loading && !list.length}}" text="暂无生成记录"></xl-empty>
+
+  <!-- 详情半屏弹层：提示词全文 / 错误信息 / provider 名 -->
   <xl-half-screen show="{{showDetail}}" title="任务详情" bind:close="onDetailClose">
+    <xl-loading wx:if="{{detailLoading}}" text="加载详情中…"></xl-loading>
     <view wx:if="{{detail}}" class="gdetail">
       <view class="gdetail__row">
         <text class="gdetail__label">任务 ID</text>
@@ -40,11 +48,15 @@
       </view>
       <view class="gdetail__row">
         <text class="gdetail__label">时间</text>
-        <text class="gdetail__value">{{detail.createdAt}}</text>
+        <text class="gdetail__value">{{detail.timeText}}</text>
       </view>
       <view class="gdetail__row">
         <text class="gdetail__label">模型</text>
-        <text class="gdetail__value">{{detail.modelId}}</text>
+        <text class="gdetail__value">{{detail.modelId || '—'}}</text>
+      </view>
+      <view class="gdetail__row">
+        <text class="gdetail__label">AI 服务</text>
+        <text class="gdetail__value">{{detail.providerName || '—'}}{{detail.adapterType ? '（' + detail.adapterType + '）' : ''}}</text>
       </view>
       <view class="gdetail__row">
         <text class="gdetail__label">状态</text>
@@ -58,13 +70,13 @@
         <text class="gdetail__prompt">{{detail.prompt || '（暂无）'}}</text>
       </view>
       <view wx:if="{{detail.status === 'failed'}}" class="gdetail__section">
-        <text class="gdetail__label">错误码</text>
-        <text class="gdetail__err">{{detail.errorCode || '—'}} {{detail.errorMessage || ''}}</text>
+        <text class="gdetail__label">错误信息</text>
+        <text class="gdetail__err">{{detail.errorCode || '—'}}：{{detail.errorMessage || '（未返回详细原因）'}}</text>
       </view>
       <view class="gdetail__section">
         <view class="gdetail__imgwrap xl-weave">
-          <image wx:if="{{detail.imageUrl}}" class="gdetail__img" src="{{detail.imageUrl}}" mode="aspectFit"></image>
-          <text wx:else class="gdetail__img-ph">结果图占位</text>
+          <image wx:if="{{detail.imageUrlFull}}" class="gdetail__img" src="{{detail.imageUrlFull}}" mode="aspectFit"></image>
+          <text wx:else class="gdetail__img-ph">{{detail.status === 'failed' ? '无结果图（任务失败）' : '结果图加载中…'}}</text>
         </view>
       </view>
     </view>

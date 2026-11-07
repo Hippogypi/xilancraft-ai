@@ -1,8 +1,11 @@
 /**
- * pages/customization —— 服装定制
- * 预览叠加（printArea 百分比坐标）/ 模板选择 / 四滑杆调节 / 尺码数量 / 表单 / 隐私勾选 / 提交成功态
- * 阶段2底座：订单为本地模拟；阶段3接入 POST /api/orders（api-contract.md §4）
+ * pages/customization —— 服装定制（WBS 05 P0/P1）
+ * 预览叠加（printArea 百分比坐标 + 纹样 image 绝对定位）/ 模板横滑单选 /
+ * 四滑杆调节（大小/水平/垂直/透明度，实时生效）/ 尺码数量 / 表单红字校验 /
+ * 隐私勾选拦截 / POST /api/orders（契约 §4）/ 成功态大订单号
  */
+const api = require('../../services/api.js');
+const urlUtil = require('../../utils/url.js');
 
 function loadGarments() {
   try {
@@ -17,11 +20,14 @@ Page({
     garments: [],
     garmentId: '',
     garment: null,
-    // placement 参数（提交时随订单快照，对应契约 placement 字段）
-    scale: 1,        // 0.5 ~ 2.0
-    offsetX: 0,      // -50 ~ 50（%，相对印花区）
-    offsetY: 0,      // -50 ~ 50
-    opacity: 1,      // 0.1 ~ 1.0
+    // 来自工坊「用此纹样」的生成结果（onShow 经 globalData.pendingPattern 消费）
+    // { jobId, imageUrl(已拼 BASE_URL 的绝对地址) }
+    pattern: null,
+    // 调节参数（WBS 05.03）：滑杆存整型百分比，提交时换算为契约 placement 数值
+    scalePct: 100,      // 50 ~ 200 → scale 0.5 ~ 2.0
+    offsetX: 0,         // -50 ~ 50（%，相对印花区）
+    offsetY: 0,         // -50 ~ 50
+    opacityPct: 100,    // 30 ~ 100 → opacity 0.3 ~ 1.0
     sizes: [
       { label: 'S', value: 'S' },
       { label: 'M', value: 'M' },
@@ -33,13 +39,14 @@ Page({
     // 联系人（演示虚构预填数据）
     name: '演示用户',
     phone: '13800000000',
+    nameError: '',
+    phoneError: '',
     privacyAccepted: false,
     privacyError: false,
     submitting: false,
     submitted: false,
     orderNo: '',
-    // 来自工坊页的纹样（经 globalData.pendingPattern）
-    pattern: null
+    submitError: ''
   },
 
   onLoad() {
@@ -52,14 +59,33 @@ Page({
   },
 
   onShow() {
-    // 消费工坊「用此纹样」带入的生成结果
+    // 消费工坊「用此纹样」带入的生成结果（tab 页不能带参，经 globalData 传递）
     const g = getApp();
     const pending = g.globalData.pendingPattern;
     if (pending && pending.jobId) {
       g.globalData.pendingPattern = null;
-      this.setData({ pattern: pending });
+      this.setData({
+        pattern: {
+          jobId: pending.jobId,
+          imageUrl: urlUtil.absoluteUrl(pending.imageUrl) // 相对路径拼 BASE_URL
+        },
+        // 新纹样 → 重置调节参数与订单态，进入新一轮定制
+        submitted: false,
+        orderNo: '',
+        submitError: '',
+        privacyAccepted: false,
+        privacyError: false,
+        scalePct: 100,
+        offsetX: 0,
+        offsetY: 0,
+        opacityPct: 100
+      });
       wx.showToast({ title: '已带入生成纹样', icon: 'none' });
     }
+  },
+
+  goWorkshop() {
+    wx.switchTab({ url: '/pages/workshop/index' });
   },
 
   /* ---------- 模板 / 滑杆 / 尺码 / 数量 ---------- */
@@ -69,8 +95,9 @@ Page({
     if (!garment) return;
     this.setData({ garmentId: id, garment: garment });
   },
+  // bindchanging + bindchange 双绑：拖动实时生效
   onScaleChange(e) {
-    this.setData({ scale: e.detail.value / 100 });
+    this.setData({ scalePct: e.detail.value });
   },
   onOffsetXChange(e) {
     this.setData({ offsetX: e.detail.value });
@@ -79,7 +106,7 @@ Page({
     this.setData({ offsetY: e.detail.value });
   },
   onOpacityChange(e) {
-    this.setData({ opacity: e.detail.value / 100 });
+    this.setData({ opacityPct: e.detail.value });
   },
   onSizeChange(e) {
     this.setData({ sizeValue: e.detail.value });
@@ -93,12 +120,12 @@ Page({
     this.setData({ quantity: this.data.quantity + 1 });
   },
 
-  /* ---------- 表单 ---------- */
+  /* ---------- 表单（红字校验） ---------- */
   onNameInput(e) {
-    this.setData({ name: e.detail.value });
+    this.setData({ name: e.detail.value, nameError: '' });
   },
   onPhoneInput(e) {
-    this.setData({ phone: e.detail.value });
+    this.setData({ phone: e.detail.value, phoneError: '' });
   },
   onPrivacyToggle() {
     this.setData({ privacyAccepted: !this.data.privacyAccepted, privacyError: false });
@@ -107,54 +134,70 @@ Page({
   /* ---------- 提交 ---------- */
   onSubmit() {
     if (this.data.submitting) return;
+    if (!this.data.pattern || !this.data.pattern.jobId) {
+      wx.showToast({ title: '请先去 AI 工坊生成纹样', icon: 'none' });
+      return;
+    }
+
     const name = (this.data.name || '').trim();
     const phone = (this.data.phone || '').trim();
+    const patch = {};
+    let valid = true;
     if (!name) {
-      wx.showToast({ title: '请输入姓名', icon: 'none' });
-      return;
+      patch.nameError = '请输入联系人姓名';
+      valid = false;
     }
     if (!phone) {
-      wx.showToast({ title: '请输入联系电话', icon: 'none' });
-      return;
+      patch.phoneError = '请输入联系电话';
+      valid = false;
+    } else if (!/^1\d{10}$/.test(phone)) {
+      patch.phoneError = '手机号格式有误，应为 1 开头的 11 位数字';
+      valid = false;
     }
-    if (!/^1\d{10}$/.test(phone)) {
-      wx.showToast({ title: '联系电话格式有误', icon: 'none' });
+    if (!valid) {
+      this.setData(patch);
+      wx.showToast({ title: '请完善联系信息', icon: 'none' });
       return;
     }
     if (!this.data.privacyAccepted) {
+      // 隐私未勾选：拦截提交
       this.setData({ privacyError: true });
-      wx.showToast({ title: '请先勾选演示用途说明', icon: 'none' });
+      wx.showToast({ title: '请先阅读并勾选演示说明', icon: 'none' });
       return;
     }
-    this.setData({ submitting: true });
-    const that = this;
 
-    // TODO(阶段3): 改为调用 api.post('/api/orders', {
-    //   customerName, contact, garmentTemplateId, size, quantity,
-    //   generationJobId: this.data.pattern ? this.data.pattern.jobId : '',
-    //   placement: { scale, offsetX, offsetY, opacity },
-    //   privacyAccepted: true
-    // })，以服务端返回的 orderNo（XLKP-日期-XXXX）渲染成功态
-    setTimeout(function () {
-      const demoNo = 'XLKP-DEMO-' + String(Date.now()).slice(-6);
-      that.setData({ submitting: false, submitted: true, orderNo: demoNo });
-    }, 800);
+    this.setData({ submitting: true, submitError: '' });
+    const that = this;
+    api.post('/api/orders', {
+      customerName: name,
+      contact: phone,
+      garmentTemplateId: this.data.garmentId,
+      size: this.data.sizeValue,
+      quantity: this.data.quantity,
+      generationJobId: this.data.pattern.jobId,
+      placement: {
+        scale: this.data.scalePct / 100,
+        offsetX: this.data.offsetX,
+        offsetY: this.data.offsetY,
+        opacity: this.data.opacityPct / 100
+      },
+      privacyAccepted: true
+    })
+      .then(function (res) {
+        that.setData({
+          submitting: false,
+          submitted: true,
+          orderNo: (res && res.orderNo) || ''
+        });
+      })
+      .catch(function (err) {
+        const msg = (err && err.friendlyMessage) || '提交失败，请稍后重试';
+        that.setData({ submitting: false, submitError: msg });
+        wx.showToast({ title: msg, icon: 'none' });
+      });
   },
 
   goHome() {
     wx.switchTab({ url: '/pages/heritage/index' });
-  },
-  resetForm() {
-    this.setData({
-      submitted: false,
-      orderNo: '',
-      privacyAccepted: false,
-      privacyError: false,
-      quantity: 1,
-      scale: 1,
-      offsetX: 0,
-      offsetY: 0,
-      opacity: 1
-    });
   }
 });

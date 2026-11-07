@@ -1,22 +1,26 @@
 <view class="xl-page">
   <view class="xl-admin-badge">管理端</view>
   <view class="xl-page-head">
-    <text class="xl-page-title">管理首页</text>
-    <text class="xl-text-faint">西兰卡普 AI 定制工坊</text>
+    <view class="home-head__left">
+      <text class="xl-page-title">管理首页</text>
+      <text class="xl-text-faint home-head__sub">西兰卡普 AI 定制工坊</text>
+    </view>
+    <!-- 右上角退出登录 -->
+    <view class="home-logout {{loggingOut ? 'home-logout--busy' : ''}}" bindtap="onLogout">{{loggingOut ? '退出中…' : '退出登录'}}</view>
   </view>
 
-  <!-- P2：统计卡占位（数据阶段接入 GET /api/admin/stats） -->
+  <!-- 统计卡（GET /api/admin/stats，失败显示 --） -->
   <view class="stats">
     <view class="stats__cell">
-      <text class="stats__num">--</text>
+      <text class="stats__num">{{stats.totalGenerations}}</text>
       <text class="stats__label">生成次数</text>
     </view>
     <view class="stats__cell">
-      <text class="stats__num">--</text>
+      <text class="stats__num">{{stats.successRate}}</text>
       <text class="stats__label">成功率</text>
     </view>
     <view class="stats__cell">
-      <text class="stats__num">--</text>
+      <text class="stats__num">{{stats.totalOrders}}</text>
       <text class="stats__label">订单数</text>
     </view>
   </view>
@@ -47,10 +51,6 @@
       <text class="entry__desc">查看模拟定制订单并流转状态</text>
     </view>
     <text class="entry__arrow">›</text>
-  </view>
-
-  <view class="xl-actions">
-    <xl-button type="ghost" text="退出登录" bind:tap="onLogout"></xl-button>
   </view>
 
   <view class="xl-demo-note">比赛演示 · 管理端仅限工作人员使用</view>
