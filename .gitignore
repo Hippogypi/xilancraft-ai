@@ -1,0 +1,17 @@
+# 依赖
+node_modules/
+
+# 运行数据与密钥（严禁入库）
+server/data/
+.env
+.env.*
+!.env.example
+
+# 便携工具链与原始素材（处理后的成品进 miniprogram/assets/）
+tools/
+assets_raw/
+
+# 日志与杂项
+*.log
+.DS_Store
+Thumbs.db
