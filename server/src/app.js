@@ -35,6 +35,7 @@ app.use('/api/generations', require('./routes/generations'));
 app.use('/api/uploads', require('./routes/uploads'));
 app.use('/api/orders', require('./routes/orders'));
 app.use('/api/images', require('./routes/images'));
+app.use('/api/assets', require('./routes/assets'));
 app.use('/api/admin', require('./routes/admin'));
 
 // 404 与统一错误处理（必须最后挂载）

@@ -27,19 +27,27 @@
     "list": [
       {
         "pagePath": "pages/heritage/index",
-        "text": "非遗导览"
+        "text": "非遗导览",
+        "iconPath": "assets/tabbar/heritage.png",
+        "selectedIconPath": "assets/tabbar/heritage-active.png"
       },
       {
         "pagePath": "pages/inspiration/index",
-        "text": "灵感素材"
+        "text": "灵感素材",
+        "iconPath": "assets/tabbar/inspiration.png",
+        "selectedIconPath": "assets/tabbar/inspiration-active.png"
       },
       {
         "pagePath": "pages/workshop/index",
-        "text": "定制工坊"
+        "text": "定制工坊",
+        "iconPath": "assets/tabbar/workshop.png",
+        "selectedIconPath": "assets/tabbar/workshop-active.png"
       },
       {
         "pagePath": "pages/customization/index",
-        "text": "服装定制"
+        "text": "服装定制",
+        "iconPath": "assets/tabbar/customization.png",
+        "selectedIconPath": "assets/tabbar/customization-active.png"
       }
     ]
   },
