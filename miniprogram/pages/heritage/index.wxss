@@ -115,10 +115,10 @@
   text-align: justify;
 }
 
-/* ============ ③ 符号解构案例 ============ */
+/* ============ ③ 符号解构案例（WBS 02.02） ============ */
 .dcd {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20rpx;
 }
 .dcd__pane {
@@ -126,6 +126,7 @@
   display: flex;
   flex-direction: column;
   align-items: center;
+  min-width: 0;
 }
 .dcd__block {
   width: 100%;
@@ -133,14 +134,29 @@
   border-radius: 12rpx;
   border: 1rpx solid var(--xl-gold-40);
   box-sizing: border-box;
+  overflow: hidden;
+  position: relative;
+  background-color: var(--xl-bg-card-2);
+}
+/* 素材图（包内 /assets/motifs/** 路径，填充铺满） */
+.dcd__img {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+/* 装饰兜底层（image 为空/加载失败时）：铺满 block */
+.dcd__decor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
-  position: relative;
-  overflow: hidden;
 }
-/* 传统：暖色斜纹菱格 */
-.dcd__block--trad {
+/* 传统装饰：暖色斜纹菱格（斜向勾连感）+ 中心菱 + 四角勾 */
+.dcd__decor--trad {
   background-color: #2E251B;
   background-image:
     repeating-linear-gradient(45deg, rgba(192, 57, 43, 0.5) 0 16rpx, transparent 16rpx 34rpx),
@@ -152,9 +168,23 @@
   border: 3rpx solid var(--xl-gold);
   border-radius: 6rpx;
   transform: rotate(45deg);
+  background: rgba(22, 18, 14, 0.35);
 }
-/* 现代：色块蒙德里安式切分 */
-.dcd__block--modern {
+.dcd__hook {
+  position: absolute;
+  width: 22rpx;
+  height: 22rpx;
+  border: 2rpx solid var(--xl-gold);
+  border-radius: 4rpx;
+  transform: rotate(45deg);
+  opacity: 0.75;
+}
+.dcd__hook--tl { left: 18rpx; top: 18rpx; }
+.dcd__hook--tr { right: 18rpx; top: 18rpx; }
+.dcd__hook--bl { left: 18rpx; bottom: 18rpx; }
+.dcd__hook--br { right: 18rpx; bottom: 18rpx; }
+/* 现代装饰：色块蒙德里安式切分 */
+.dcd__decor--modern {
   background-color: #2E251B;
 }
 .dcd__chip {
@@ -191,13 +221,21 @@
 .dcd__label {
   margin-top: 12rpx;
   font-size: 24rpx;
+  font-weight: 600;
   color: var(--xl-text-sub);
+}
+.dcd__sub {
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  line-height: 1.5;
+  color: var(--xl-text-faint);
+  text-align: center;
 }
 .dcd__arrow {
   display: flex;
   flex-direction: column;
   align-items: center;
-  padding: 0 16rpx;
+  padding: 40rpx 12rpx 0;
 }
 .dcd__arrow-line {
   font-size: 36rpx;
@@ -209,18 +247,18 @@
   color: var(--xl-text-faint);
 }
 
-/* ============ ④ 视频卡 ============ */
+/* ============ ④ 视频卡（WBS 02.03）：内容宽 654rpx，16:9 ≈ 368rpx ============ */
 .video-wrap {
   position: relative;
 }
 .video {
   width: 100%;
-  height: 360rpx;
+  height: 368rpx;
   border-radius: 12rpx;
   background: #1A1A1A;
 }
 .video-ph {
-  height: 360rpx;
+  height: 368rpx;
   border-radius: 12rpx;
   border: 1rpx solid var(--xl-gold-40);
   background-color: var(--xl-bg-card-2);
@@ -228,6 +266,8 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
+  padding: 0 40rpx;
+  box-sizing: border-box;
 }
 /* 播放键占位（圆 + 三角） */
 .video-ph__play {
@@ -251,17 +291,25 @@
   border-bottom: 18rpx solid transparent;
 }
 .video-ph__text {
-  font-size: 28rpx;
+  font-size: 26rpx;
   color: var(--xl-text-sub);
+  text-align: center;
 }
 .video-ph__sub {
   margin-top: 8rpx;
   font-size: 22rpx;
   color: var(--xl-text-faint);
-}
-.video-err {
-  margin-top: 16rpx;
-  font-size: 24rpx;
-  color: var(--xl-danger);
   text-align: center;
+}
+/* 失败占位内的重试入口 */
+.video-ph__retry {
+  margin-top: 24rpx;
+  padding: 10rpx 44rpx;
+  border-radius: 999rpx;
+  border: 1rpx solid var(--xl-gold);
+  color: var(--xl-gold);
+  font-size: 24rpx;
+}
+.video-ph__retry:active {
+  background: rgba(201, 160, 99, 0.12);
 }

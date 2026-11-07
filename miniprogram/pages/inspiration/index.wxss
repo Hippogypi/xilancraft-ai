@@ -1,4 +1,4 @@
-/* ============ 2 列网格 ============ */
+/* ============ ② 2 列网格 ============ */
 .motif-grid {
   display: flex;
   flex-wrap: wrap;
@@ -17,17 +17,37 @@
   position: relative;
   height: 220rpx;
   background-color: var(--xl-bg-card-2);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
 }
 .motif-card__img {
   width: 100%;
   height: 100%;
+  display: block;
 }
-/* image 为空时的菱形占位 */
+/* image 空串/加载失败 → 几何占位色块（按分类取暖红金 / 织线蓝色调） */
 .motif-card__ph {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.motif-card__ph--trad {
+  background-color: #2A2118;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(166, 43, 43, 0.34) 0 14rpx, transparent 14rpx 30rpx),
+    repeating-linear-gradient(-45deg, rgba(201, 160, 99, 0.2) 0 14rpx, transparent 14rpx 30rpx);
+}
+.motif-card__ph--modern {
+  background-color: #232430;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(58, 110, 165, 0.3) 0 14rpx, transparent 14rpx 30rpx),
+    repeating-linear-gradient(-45deg, rgba(201, 160, 99, 0.14) 0 14rpx, transparent 14rpx 30rpx);
+}
+/* 菱中菱装饰 */
+.motif-card__ph-diamond {
   width: 52rpx;
   height: 52rpx;
   border: 3rpx solid var(--xl-gold-40);
@@ -35,7 +55,7 @@
   transform: rotate(45deg);
   position: relative;
 }
-.motif-card__ph::after {
+.motif-card__ph-diamond::after {
   content: '';
   position: absolute;
   left: 50%;
@@ -46,13 +66,21 @@
   background: var(--xl-gold-40);
   border-radius: 3rpx;
 }
-.motif-card__ph-text {
-  margin-top: 16rpx;
+/* 「纹样示意」角标（左上；右上为分类 tag） */
+.motif-card__ph-badge {
+  position: absolute;
+  left: 12rpx;
+  top: 12rpx;
+  padding: 2rpx 12rpx;
+  border-radius: 999rpx;
   font-size: 20rpx;
-  color: var(--xl-text-faint);
+  color: var(--xl-text-sub);
+  background: rgba(22, 18, 14, 0.6);
+  border: 1rpx solid var(--xl-gold-40);
 }
-/* 分类角标 */
-.motif-card__tag {
+/* 分类角标：traditional 金 / modern 织线蓝 */
+.motif-card__tag,
+.detail__tag {
   position: absolute;
   right: 12rpx;
   top: 12rpx;
@@ -61,14 +89,14 @@
   font-size: 20rpx;
 }
 .motif-card__tag--trad {
-  color: var(--xl-thread-orange);
-  background: rgba(230, 126, 34, 0.16);
-  border: 1rpx solid rgba(230, 126, 34, 0.5);
+  color: var(--xl-gold);
+  background: rgba(201, 160, 99, 0.16);
+  border: 1rpx solid var(--xl-gold);
 }
 .motif-card__tag--modern {
   color: var(--xl-thread-blue);
   background: rgba(58, 110, 165, 0.16);
-  border: 1rpx solid rgba(58, 110, 165, 0.5);
+  border: 1rpx solid rgba(58, 110, 165, 0.55);
 }
 .motif-card__body {
   padding: 16rpx 20rpx 20rpx;
@@ -80,14 +108,14 @@
   font-weight: 600;
   color: var(--xl-text);
 }
+/* 寓意截断一行 */
 .motif-card__meaning {
   margin-top: 6rpx;
   font-size: 22rpx;
   color: var(--xl-text-sub);
-  display: -webkit-box;
-  -webkit-box-orient: vertical;
-  -webkit-line-clamp: 2;
+  white-space: nowrap;
   overflow: hidden;
+  text-overflow: ellipsis;
 }
 .motif-card__more {
   margin-top: 12rpx;
@@ -95,14 +123,15 @@
   color: var(--xl-gold);
 }
 
-/* ============ 传统 vs 现代 对比卡 ============ */
+/* ============ ④ 传统 vs 现代 对比卡（WBS 03.04） ============ */
 .vs {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   margin-bottom: 20rpx;
 }
 .vs__item {
   flex: 1;
+  min-width: 0;
   display: flex;
   flex-direction: column;
   align-items: center;
@@ -115,11 +144,24 @@
   background-color: var(--xl-bg-card-2);
   position: relative;
   overflow: hidden;
+}
+.vs__photo {
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+.vs__decor {
+  position: absolute;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
   display: flex;
   align-items: center;
   justify-content: center;
 }
-.vs__img--trad {
+.vs__decor--trad {
+  background-color: #2A2118;
   background-image:
     repeating-linear-gradient(45deg, rgba(192, 57, 43, 0.45) 0 14rpx, transparent 14rpx 30rpx),
     repeating-linear-gradient(-45deg, rgba(233, 185, 76, 0.25) 0 14rpx, transparent 14rpx 30rpx);
@@ -130,8 +172,9 @@
   border: 3rpx solid var(--xl-gold);
   border-radius: 6rpx;
   transform: rotate(45deg);
+  background: rgba(22, 18, 14, 0.35);
 }
-.vs__img--modern {
+.vs__decor--modern {
   background-color: #2E251B;
 }
 .vs__chip {
@@ -164,34 +207,69 @@
 }
 .vs__label {
   margin-top: 12rpx;
-  font-size: 22rpx;
+  font-size: 24rpx;
+  font-weight: 600;
   color: var(--xl-text-sub);
 }
-.vs__divider {
-  width: 2rpx;
-  height: 140rpx;
-  margin: 0 20rpx;
-  background: linear-gradient(180deg, transparent, var(--xl-gold-40), transparent);
+.vs__sub {
+  margin-top: 4rpx;
+  font-size: 20rpx;
+  line-height: 1.5;
+  color: var(--xl-text-faint);
+  text-align: center;
+}
+/* 中间箭头 */
+.vs__arrow {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 30rpx 12rpx 0;
+}
+.vs__arrow-line {
+  font-size: 36rpx;
+  color: var(--xl-gold);
+  margin-top: 4rpx;
+}
+.vs__arrow-text {
+  font-size: 20rpx;
+  color: var(--xl-text-faint);
 }
 
-/* ============ 详情弹层 ============ */
+/* ============ ③ 详情弹层 ============ */
 .detail__imgwrap {
   position: relative;
   height: 380rpx;
   border-radius: 12rpx;
   border: 1rpx solid var(--xl-gold-40);
   background-color: var(--xl-bg-card-2);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
   overflow: hidden;
 }
 .detail__img {
   width: 100%;
   height: 100%;
+  display: block;
 }
+/* 大图占位（同网格容错） */
 .detail__ph {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+.detail__ph--trad {
+  background-color: #2A2118;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(166, 43, 43, 0.34) 0 18rpx, transparent 18rpx 38rpx),
+    repeating-linear-gradient(-45deg, rgba(201, 160, 99, 0.2) 0 18rpx, transparent 18rpx 38rpx);
+}
+.detail__ph--modern {
+  background-color: #232430;
+  background-image:
+    repeating-linear-gradient(45deg, rgba(58, 110, 165, 0.3) 0 18rpx, transparent 18rpx 38rpx),
+    repeating-linear-gradient(-45deg, rgba(201, 160, 99, 0.14) 0 18rpx, transparent 18rpx 38rpx);
+}
+.detail__ph-diamond {
   width: 84rpx;
   height: 84rpx;
   border: 3rpx solid var(--xl-gold-40);
@@ -199,7 +277,7 @@
   transform: rotate(45deg);
   position: relative;
 }
-.detail__ph::after {
+.detail__ph-diamond::after {
   content: '';
   position: absolute;
   left: 50%;
@@ -211,17 +289,13 @@
   border-radius: 4rpx;
 }
 .detail__ph-text {
-  margin-top: 24rpx;
+  margin-top: 32rpx;
   font-size: 22rpx;
   color: var(--xl-text-faint);
 }
 .detail__tag {
-  position: absolute;
   right: 16rpx;
   top: 16rpx;
-  padding: 2rpx 14rpx;
-  border-radius: 999rpx;
-  font-size: 20rpx;
 }
 .detail__section {
   margin-top: 28rpx;
@@ -238,6 +312,13 @@
   color: var(--xl-text-sub);
   line-height: 1.7;
 }
+/* 来源说明：小字 */
+.detail__source {
+  display: block;
+  font-size: 22rpx;
+  color: var(--xl-text-faint);
+  line-height: 1.6;
+}
 .detail__keywords {
   display: flex;
   flex-wrap: wrap;
@@ -245,6 +326,20 @@
 .detail__keywords .xl-tag {
   margin: 0 12rpx 12rpx 0;
 }
-.detail xl-button {
+/* 「以此为灵感」金色按钮：ghost 金描边 + 金淡底（宿主元素样式） */
+.detail__cta {
+  display: block;
   margin-top: 36rpx;
+  background: rgba(201, 160, 99, 0.1);
+  border-radius: 12rpx;
+}
+/* referenceAllowed=false 的替代说明 */
+.detail__denied {
+  margin-top: 32rpx;
+  padding: 16rpx 20rpx;
+  border-radius: 12rpx;
+  border: 1rpx dashed var(--xl-gold-40);
+  font-size: 24rpx;
+  color: var(--xl-text-faint);
+  text-align: center;
 }

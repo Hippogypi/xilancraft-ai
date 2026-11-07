@@ -4,80 +4,131 @@
     <text class="xl-text-faint">西兰卡普纹样图鉴</text>
   </view>
 
-  <!-- ① 分类 chips -->
+  <!-- ① 分类 chips：全部 / 传统纹样 / 现代转译 -->
   <xl-chips options="{{categories}}" value="{{category}}" bind:change="onCategoryChange"></xl-chips>
 
-  <!-- ② 2 列纹样网格 -->
-  <view wx:if="{{list.length}}" class="motif-grid">
-    <view class="motif-card" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onCardTap">
-      <view class="motif-card__imgwrap xl-weave">
-        <image wx:if="{{item.image}}" class="motif-card__img" src="{{item.image}}" mode="aspectFill"></image>
-        <block wx:else>
-          <view class="motif-card__ph"></view>
-          <text class="motif-card__ph-text">纹样图整理中</text>
-        </block>
-        <view class="motif-card__tag {{item.category === 'traditional' ? 'motif-card__tag--trad' : 'motif-card__tag--modern'}}">
-          {{item.category === 'traditional' ? '传统纹样' : '现代转译'}}
+  <!-- ② 2 列纹样网格（读取失败 → xl-empty；分类无数据 → xl-empty） -->
+  <xl-empty wx:if="{{loadError}}" text="素材库加载失败，请重启小程序重试"></xl-empty>
+  <block wx:else>
+    <view wx:if="{{list.length}}" class="motif-grid">
+      <view class="motif-card" wx:for="{{list}}" wx:key="id" data-id="{{item.id}}" bindtap="onCardTap">
+        <view class="motif-card__imgwrap">
+          <!-- 图：image 为空串或加载失败 → 几何占位色块 + 「纹样示意」角标 -->
+          <image
+            wx:if="{{item.image && !item._imgError}}"
+            class="motif-card__img"
+            src="{{item.image}}"
+            mode="aspectFill"
+            lazy-load
+            binderror="onImgError"
+            data-id="{{item.id}}"
+          ></image>
+          <view wx:else class="motif-card__ph {{item.category === 'traditional' ? 'motif-card__ph--trad' : 'motif-card__ph--modern'}}">
+            <view class="motif-card__ph-diamond"></view>
+          </view>
+          <view wx:if="{{!item.image || item._imgError}}" class="motif-card__ph-badge">纹样示意</view>
+          <!-- 分类 tag：traditional 金 / modern 织线蓝 -->
+          <view class="motif-card__tag {{item.category === 'traditional' ? 'motif-card__tag--trad' : 'motif-card__tag--modern'}}">
+            {{item.category === 'traditional' ? '传统纹样' : '现代转译'}}
+          </view>
+        </view>
+        <view class="motif-card__body">
+          <text class="motif-card__name">{{item.name}}</text>
+          <text class="motif-card__meaning">{{item.meaning}}</text>
+          <text class="motif-card__more">查看详情 ›</text>
         </view>
       </view>
-      <view class="motif-card__body">
-        <text class="motif-card__name">{{item.name}}</text>
-        <text class="motif-card__meaning">{{item.meaning}}</text>
-        <text class="motif-card__more">查看详情 ›</text>
-      </view>
     </view>
-  </view>
-  <!-- 空数据态 -->
-  <xl-empty wx:else text="该分类暂无素材，素材将持续补充"></xl-empty>
+    <xl-empty wx:else text="该分类暂无素材，素材将持续补充"></xl-empty>
+  </block>
 
-  <!-- ④ 传统 vs 现代 对比卡 -->
-  <xl-card title="传统 vs 现代 · 设计思路">
+  <!-- ④ 传统 vs 现代 对比卡（WBS 03.04）：两栏 + 中间箭头 -->
+  <xl-card title="传统 vs 现代 · 重构思路">
     <view class="vs">
       <view class="vs__item">
-        <view class="vs__img vs__img--trad xl-weave"><view class="vs__core"></view></view>
-        <text class="vs__label">传统阳雀花 · 对称饱满</text>
-      </view>
-      <view class="vs__divider"></view>
-      <view class="vs__item">
-        <view class="vs__img vs__img--modern">
-          <view class="vs__chip vs__chip--1"></view>
-          <view class="vs__chip vs__chip--2"></view>
-          <view class="vs__chip vs__chip--3"></view>
+        <view class="vs__img">
+          <image
+            wx:if="{{vsTradImg && !vsTradImgError}}"
+            class="vs__photo"
+            src="{{vsTradImg}}"
+            mode="aspectFill"
+            binderror="onVsTradImgError"
+          ></image>
+          <view wx:else class="vs__decor vs__decor--trad xl-weave">
+            <view class="vs__core"></view>
+          </view>
         </view>
-        <text class="vs__label">现代转译 · 色块节奏</text>
+        <text class="vs__label">四十八勾 · 传统</text>
+        <text class="vs__sub">斜向勾连、层层向心，象征家族绵延</text>
+      </view>
+      <view class="vs__arrow">
+        <text class="vs__arrow-text">转译</text>
+        <text class="vs__arrow-line">→</text>
+      </view>
+      <view class="vs__item">
+        <view class="vs__img">
+          <image
+            wx:if="{{vsModernImg && !vsModernImgError}}"
+            class="vs__photo"
+            src="{{vsModernImg}}"
+            mode="aspectFill"
+            binderror="onVsModernImgError"
+          ></image>
+          <view wx:else class="vs__decor vs__decor--modern">
+            <view class="vs__chip vs__chip--1"></view>
+            <view class="vs__chip vs__chip--2"></view>
+            <view class="vs__chip vs__chip--3"></view>
+          </view>
+        </view>
+        <text class="vs__label">几何重构 · 现代</text>
+        <text class="vs__sub">抽取勾形单元，菱形阵列重组，节奏与留白</text>
       </view>
     </view>
-    <text class="xl-text-sub">保留纹样的骨架与配色基因，打散轮廓后以点、线、面重新构成——从"器物纹样"走向"服装语言"。</text>
+    <text class="xl-text-sub">同一纹样基因的两种时态：保留骨架与配色，重组单元与节奏——从"器物纹样"走向"服装语言"。</text>
   </xl-card>
 
-  <!-- ③ 纹样详情半屏弹层 -->
+  <!-- ③ 纹样详情半屏弹层：大图 / 寓意 / 关键词 / 来源 / 以此为灵感 -->
   <xl-half-screen show="{{showDetail}}" title="{{detail.name || '纹样详情'}}" bind:close="onDetailClose">
     <view wx:if="{{detail}}" class="detail">
-      <view class="detail__imgwrap xl-weave">
-        <image wx:if="{{detail.image}}" class="detail__img" src="{{detail.image}}" mode="aspectFill"></image>
-        <block wx:else>
-          <view class="detail__ph"></view>
-          <text class="detail__ph-text">纹样大图整理中（占位）</text>
-        </block>
+      <view class="detail__imgwrap">
+        <image
+          wx:if="{{detail.image && !detailImgError}}"
+          class="detail__img"
+          src="{{detail.image}}"
+          mode="aspectFill"
+          binderror="onDetailImgError"
+        ></image>
+        <view wx:else class="detail__ph {{detail.category === 'traditional' ? 'detail__ph--trad' : 'detail__ph--modern'}} xl-weave">
+          <view class="detail__ph-diamond"></view>
+          <text class="detail__ph-text">纹样示意图 · 授权图片整理中</text>
+        </view>
         <view class="detail__tag {{detail.category === 'traditional' ? 'motif-card__tag--trad' : 'motif-card__tag--modern'}}">
           {{detail.category === 'traditional' ? '传统纹样' : '现代转译'}}
         </view>
       </view>
       <view class="detail__section">
-        <text class="detail__label">文化释义</text>
+        <text class="detail__label">纹样寓意</text>
         <text class="detail__text">{{detail.meaning}}</text>
       </view>
-      <view class="detail__section">
+      <view class="detail__section" wx:if="{{detail.keywords.length}}">
         <text class="detail__label">设计关键词</text>
         <view class="detail__keywords">
-          <view class="xl-tag xl-tag--gold" wx:for="{{detail.keywords}}" wx:key="*this">{{item}}</view>
+          <view class="xl-tag xl-tag--gold" wx:for="{{detail.keywords}}" wx:for-item="kw" wx:key="*this">{{kw}}</view>
         </view>
       </view>
       <view class="detail__section">
         <text class="detail__label">来源说明</text>
-        <text class="detail__text xl-text-faint">{{detail.source}}</text>
+        <text class="detail__source">{{detail.source}}</text>
       </view>
-      <xl-button type="primary" text="以此为灵感 → AI 工坊" bind:tap="onUseAsInspiration"></xl-button>
+      <!-- referenceAllowed=true：金色按钮跳 AI 工坊（globalData.pendingMotif 传参） -->
+      <xl-button
+        wx:if="{{detail.referenceAllowed !== false}}"
+        class="detail__cta"
+        type="ghost"
+        text="以此为灵感 → AI 工坊"
+        bind:tap="onUseAsInspiration"
+      ></xl-button>
+      <view wx:else class="detail__denied">该素材仅作文化展示，暂未开放作为 AI 参考图</view>
     </view>
   </xl-half-screen>
 
