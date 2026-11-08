@@ -4,6 +4,8 @@
 
 **核心验收能力：评委现场输入新提示词 → 真实 AI 模型（智谱 CogView）返回新图 → 服装叠加预览 → 模拟订单 → 管理端可见全链路。**
 
+**演示视频：[`小程序演示.mp4`](小程序演示.mp4)**（小程序操作演示录屏；1080p H.264，2 分 25 秒，13.3 MB）。
+
 ## 架构
 
 ```text
@@ -96,9 +98,10 @@ npm start                       # 或 node src/index.js
 miniprogram/  小程序：pages(heritage/inspiration/workshop/customization + admin×7)、components(xl-*)、services/api.js、assets(纹样/服装/图标/数据JSON)
 server/       src/{routes,middleware,providers,services,db,utils,config}、public/assets(loom.mp4)、.env.example；data/ 运行时生成（gitignore）
 shared/       api-contract.md（冻结API契约）、UI-SPEC.md（设计规格）
-scripts/      use-node.sh、test-api.sh（E2E验收）
+scripts/      use-node.sh、test-api.sh（E2E验收）、mp4-info.js（免ffmpeg读MP4元信息）
 docs/         规格书V5.1、UI全景图、调度代办清单、演示与验收手册
 assets_raw/   原始素材存档（gitignore）
+小程序演示.mp4  小程序操作演示录屏（1080p H.264，2分25秒，13.3MB）
 ```
 
 ## 素材替换指南
