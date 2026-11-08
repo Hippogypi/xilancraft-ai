@@ -1,6 +1,7 @@
 /**
  * pages/customization —— 服装定制（WBS 05 P0/P1）
- * 预览叠加（printArea 百分比坐标 + 纹样 image 绝对定位）/ 模板横滑单选 /
+ * 预览叠加（衣服轮廓=剪辑蒙版：纹样满画布自由摆放，超出轮廓自动裁剪；printArea 仅作默认落位）/
+ * 纹样拖拽（touch 手势，与滑杆双向同步）/ 模板横滑单选 /
  * 四滑杆调节（大小/水平/垂直/透明度，实时生效）/ 尺码数量 / 表单红字校验 /
  * 隐私勾选拦截 / POST /api/orders（契约 §4）/ 成功态大订单号
  */
@@ -20,6 +21,11 @@ Page({
     garments: [],
     garmentId: '',
     garment: null,
+    // 剪辑蒙版：CSS mask 需要相对路径（webview 下 url() 根路径解析不稳定）
+    maskSrc: '',
+    // 该款服装印花推荐区中心（舞台百分比）：纹样默认落位，offsetX/Y 相对此点
+    dcLeft: 50,
+    dcTop: 40,
     // 来自工坊「用此纹样」的生成结果（onShow 经 globalData.pendingPattern 消费）
     // { jobId, imageUrl(已拼 BASE_URL 的绝对地址) }
     pattern: null,
@@ -51,10 +57,29 @@ Page({
 
   onLoad() {
     const garments = loadGarments();
+    this.setData({ garments: garments });
+    if (garments.length) this.applyGarment(garments[0]);
+  },
+
+  onReady() {
+    this._ensureStageRect();
+  },
+
+  /** 应用选中服装：更新蒙版路径与默认印花中心，重置位置类调节参数 */
+  applyGarment(garment) {
+    if (!garment) return;
+    const pa = garment.printArea || { top: 36, left: 30, width: 40, height: 28 };
+    const rel = String(garment.image || '').replace(/^\//, '');
     this.setData({
-      garments: garments,
-      garmentId: garments.length ? garments[0].id : '',
-      garment: garments.length ? garments[0] : null
+      garmentId: garment.id,
+      garment: garment,
+      maskSrc: rel ? '../../' + rel : '',
+      dcLeft: +(pa.left + pa.width / 2).toFixed(1),
+      dcTop: +(pa.top + pa.height / 2).toFixed(1),
+      offsetX: 0,
+      offsetY: 0,
+      scalePct: 100,
+      opacityPct: 100
     });
   },
 
@@ -93,7 +118,36 @@ Page({
     const id = e.currentTarget.dataset.id;
     const garment = this.data.garments.find(function (x) { return x.id === id; });
     if (!garment) return;
-    this.setData({ garmentId: id, garment: garment });
+    this.applyGarment(garment);
+  },
+
+  /* ---------- 纹样拖拽（与滑杆双向同步：拖动实时写回 offsetX/offsetY） ---------- */
+  _ensureStageRect() {
+    if (this._stageRect) return;
+    wx.createSelectorQuery()
+      .in(this)
+      .select('.preview__stage')
+      .boundingClientRect((r) => { if (r) this._stageRect = r; })
+      .exec();
+  },
+  onStageTouchStart(e) {
+    const t = e.touches && e.touches[0];
+    if (!t) return;
+    this._ensureStageRect();
+    this._drag = { x0: t.clientX, y0: t.clientY, ox: this.data.offsetX, oy: this.data.offsetY };
+  },
+  onStageTouchMove(e) {
+    if (!this._drag || !this._stageRect) return;
+    const t = e.touches && e.touches[0];
+    if (!t) return;
+    // 屏幕像素位移 → 舞台百分比，clamp 到滑杆量程保持同步
+    const dx = ((t.clientX - this._drag.x0) / this._stageRect.width) * 100;
+    const dy = ((t.clientY - this._drag.y0) / this._stageRect.height) * 100;
+    const clamp = function (v) { return Math.max(-50, Math.min(50, Math.round(v))); };
+    this.setData({ offsetX: clamp(this._drag.ox + dx), offsetY: clamp(this._drag.oy + dy) });
+  },
+  onStageTouchEnd() {
+    this._drag = null;
   },
   // bindchanging + bindchange 双绑：拖动实时生效
   onScaleChange(e) {

@@ -20,15 +20,19 @@
 .preview {
   margin-bottom: 24rpx;
 }
-.preview__garment {
+/* 预览舞台：正方形（padding-bottom 技巧），服装512×512方图 aspectFit 恰好铺满，
+   保证纹样蒙版层(-webkit-mask 100%×100%)与服装底图严格对齐 */
+.preview__stage {
   position: relative;
-  height: 560rpx;
+  height: 0;
+  padding-bottom: 100%;
   border-radius: 16rpx;
   border: 1rpx solid var(--xl-gold-40);
   background:
     radial-gradient(ellipse at 50% 28%, rgba(245, 237, 222, 0.06), transparent 62%),
     linear-gradient(180deg, #2E251B, #241D15);
   overflow: hidden;
+  touch-action: none; /* 拖拽纹样时屏蔽页面滚动 */
 }
 /* 服装剪影占位（透明底 PNG 就位后由 preview__garment-img 替代） */
 .g-body {
@@ -65,22 +69,20 @@
   width: 100%;
   height: 100%;
 }
-/* 印花区虚线辅助框（printArea 百分比坐标），溢出裁剪保证纹样不越出 */
-.preview__printarea {
+/* 纹样蒙版层：覆盖整个舞台；-webkit-mask 以服装PNG（透明底轮廓）作剪辑蒙版，
+   纹样可满画布自由摆放，超出衣服轮廓的部分被自动裁剪 */
+.preview__masklayer {
   position: absolute;
-  border: 2rpx dashed var(--xl-gold);
-  border-radius: 4rpx;
-  background: rgba(201, 160, 99, 0.05);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  overflow: hidden;
-  box-sizing: border-box;
+  left: 0;
+  top: 0;
+  right: 0;
+  bottom: 0;
 }
-/* 纹样叠加层：AI 生成图，宽高 = 印花区 × scale，translate 百分比相对纹样自身 */
+/* 纹样：中心点定位（left/top 为舞台百分比，translate(-50%,-50%) 居中于该点）；
+   默认落位 = 该款 printArea 中心，offsetX/Y 相对该点偏移 */
 .preview__pattern {
-  position: relative;
-  flex-shrink: 0;
+  position: absolute;
+  transform: translate(-50%, -50%);
   border-radius: 4rpx;
   display: flex;
   align-items: center;

@@ -43,30 +43,37 @@
       <text class="xl-text-faint">纹样叠加预览 · 模拟订单</text>
     </view>
 
-    <!-- ① 预览区：服装底图 + 纹样按 printArea 百分比坐标绝对定位叠加 -->
+    <!-- ① 预览区：服装底图 + 纹样自由摆放（衣服轮廓=剪辑蒙版，越界自动裁剪；支持拖拽） -->
     <view class="preview">
-      <view class="preview__garment">
-        <!-- 服装剪影占位（底图 PNG 就位后由 preview__garment-img 替代） -->
-        <view class="g-body"></view>
-        <view class="g-sleeve g-sleeve--l"></view>
-        <view class="g-sleeve g-sleeve--r"></view>
+      <view
+        class="preview__stage"
+        catchtouchstart="onStageTouchStart"
+        catchtouchmove="onStageTouchMove"
+        catchtouchend="onStageTouchEnd"
+      >
+        <!-- 服装剪影占位（底图 PNG 缺失时兜底） -->
+        <block wx:if="{{!garment.image}}">
+          <view class="g-body"></view>
+          <view class="g-sleeve g-sleeve--l"></view>
+          <view class="g-sleeve g-sleeve--r"></view>
+        </block>
         <image wx:if="{{garment.image}}" class="preview__garment-img" src="{{garment.image}}" mode="aspectFit"></image>
 
-        <!-- 印花区：printArea 百分比矩形 + 虚线辅助框 -->
+        <!-- 纹样层：满画布自由定位；以服装PNG为剪辑蒙版，超出衣服轮廓自动裁剪 -->
         <view
-          wx:if="{{garment}}"
-          class="preview__printarea"
-          style="top:{{garment.printArea.top}}%;left:{{garment.printArea.left}}%;width:{{garment.printArea.width}}%;height:{{garment.printArea.height}}%;"
+          wx:if="{{garment.image}}"
+          class="preview__masklayer"
+          style="-webkit-mask-image:url('{{maskSrc}}');-webkit-mask-size:100% 100%;-webkit-mask-repeat:no-repeat;-webkit-mask-position:center;"
         >
-          <!-- 纹样：宽 = 印花区宽 × scale；位移按纹样自身百分比换算，印花区溢出裁剪 -->
           <view
             class="preview__pattern"
-            style="width:{{scalePct}}%;height:{{scalePct}}%;transform:translate({{offsetX}}%, {{offsetY}}%);opacity:{{opacityPct / 100}};"
+            style="left:{{dcLeft + offsetX}}%;top:{{dcTop + offsetY}}%;width:{{40 * scalePct / 100}}%;height:{{40 * scalePct / 100}}%;opacity:{{opacityPct / 100}};"
           >
             <image class="preview__pattern-img" src="{{pattern.imageUrl}}" mode="aspectFit"></image>
           </view>
         </view>
-        <view class="preview__label">{{garment.name}} · 印花区（虚线框）</view>
+
+        <view class="preview__label">{{garment.name}} · 拖动纹样自由摆放，超出轮廓自动裁剪</view>
       </view>
     </view>
 
@@ -99,11 +106,11 @@
       </view>
       <view class="ctrl">
         <view class="ctrl__row"><text class="ctrl__name">水平位置</text><text class="ctrl__val">{{offsetX > 0 ? '+' : ''}}{{offsetX}}%</text></view>
-        <slider class="ctrl__slider" min="-50" max="50" step="5" value="{{offsetX}}" activeColor="#C9A063" backgroundColor="#2E251B" block-size="20" block-color="#C9A063" bindchange="onOffsetXChange" bindchanging="onOffsetXChange" />
+        <slider class="ctrl__slider" min="-50" max="50" step="1" value="{{offsetX}}" activeColor="#C9A063" backgroundColor="#2E251B" block-size="20" block-color="#C9A063" bindchange="onOffsetXChange" bindchanging="onOffsetXChange" />
       </view>
       <view class="ctrl">
         <view class="ctrl__row"><text class="ctrl__name">垂直位置</text><text class="ctrl__val">{{offsetY > 0 ? '+' : ''}}{{offsetY}}%</text></view>
-        <slider class="ctrl__slider" min="-50" max="50" step="5" value="{{offsetY}}" activeColor="#C9A063" backgroundColor="#2E251B" block-size="20" block-color="#C9A063" bindchange="onOffsetYChange" bindchanging="onOffsetYChange" />
+        <slider class="ctrl__slider" min="-50" max="50" step="1" value="{{offsetY}}" activeColor="#C9A063" backgroundColor="#2E251B" block-size="20" block-color="#C9A063" bindchange="onOffsetYChange" bindchanging="onOffsetYChange" />
       </view>
       <view class="ctrl ctrl--last">
         <view class="ctrl__row"><text class="ctrl__name">透明度</text><text class="ctrl__val">{{opacityPct}}%</text></view>
