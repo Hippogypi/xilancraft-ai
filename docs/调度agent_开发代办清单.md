@@ -119,3 +119,4 @@
 | 2026-11-08 | 素材到位：loom_weaving.mp4（7.3MB）+ 白色服装透明底 15 件 | — |
 | 2026-11-08 | GitHub secret 扫描误报测试号 AppID：文档改掩码、真实值移入 gitignore 的 project.private.config.json | 本次 |
 | 2026-11-08 | 阶段 0 完成：便携 Node v22.23.4、骨架、API 契约与 UI-SPEC 冻结；开发者工具 CLI 位于 D:\Program Files (x86)\Tencent\微信web开发者工具 | 本次 |
+| 2026-11-08 | 乱码修复：Windows Git Bash 下 curl 中文请求体经 GBK 损坏污染演示库（测试数据），test-api.sh 请求体 ASCII 化 + 新增 `scripts/reset-demo-data.js` 演示数据清理工具（顺带完成 WBS 09.05），库已重置并重建干净备用 Mock | 本次 |

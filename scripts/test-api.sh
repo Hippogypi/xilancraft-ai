@@ -56,20 +56,20 @@ AUTH="Authorization: Bearer $TOKEN"
 # ---------- 2. Provider 配置与切换（AT-03） ----------
 say "Provider 配置"
 PROV=$(curl -s --max-time 15 -X POST $API/api/admin/providers -H "$AUTH" -H 'Content-Type: application/json' \
-  -d '{"name":"验收Mock","adapterType":"mock","modelId":"mock-xilankapu"}')
+  -d '{"name":"E2E-Mock","adapterType":"mock","modelId":"mock-xilankapu"}')
 check "新增 mock provider" '"adapterType":"mock"' "$PROV"
 PID=$(echo "$PROV" | sed -E 's/.*"id":"(prov-[^"]+)".*/\1/')
 LIST=$(curl -s --max-time 15 $API/api/admin/providers -H "$AUTH")
 check "密钥只回 hasApiKey，不回明文" '"hasApiKey":false' "$LIST"
 check "激活 provider" '"active":true' "$(curl -s --max-time 15 -X POST $API/api/admin/providers/$PID/activate -H "$AUTH")"
 BADPROV=$(curl -s --max-time 15 -X POST $API/api/admin/providers -H "$AUTH" -H 'Content-Type: application/json' \
-  -d '{"name":"非法","adapterType":"openai_compatible","baseUrl":"http://127.0.0.1:9","modelId":"x","apiKey":"k"}')
+  -d '{"name":"BadSSRF","adapterType":"openai_compatible","baseUrl":"http://127.0.0.1:9","modelId":"x","apiKey":"k"}')
 check "SSRF：私网地址被拒" '"success":false' "$BADPROV"
 
 # ---------- 3. 生成链路（AT-05，mock 真实走适配器） ----------
 say "生成任务（mock provider）"
 GEN=$(curl -s --max-time 15 -X POST $API/api/generations -H 'Content-Type: application/json' \
-  -d '{"mode":"text_to_image","prompt":"验收脚本：解构四十八勾纹样，几何重组，新中式服装印花","style":"new_chinese","size":"1024x1024"}')
+  -d '{"mode":"text_to_image","prompt":"E2E test: deconstruct 48-gou motif, geometric recombination","style":"new_chinese","size":"1024x1024"}')
 check "提交任务 queued" '"status":"queued"' "$GEN"
 JOBID=$(echo "$GEN" | sed -E 's/.*"jobId":"(job-[^"]+)".*/\1/')
 for i in $(seq 1 30); do
@@ -98,7 +98,7 @@ ORD=$(curl -s --max-time 15 -X POST $API/api/orders -H 'Content-Type: applicatio
   -d "{\"customerName\":\"验收员\",\"contact\":\"13800000000\",\"garmentTemplateId\":\"hoodie-001\",\"size\":\"L\",\"quantity\":1,\"generationJobId\":\"$JOBID\",\"placement\":{\"scale\":1,\"offsetX\":0,\"offsetY\":0,\"opacity\":1},\"privacyAccepted\":true}")
 check "提交成功返回订单号 XLKP-" 'XLKP-' "$ORD"
 BADJOB=$(curl -s --max-time 15 -X POST $API/api/orders -H 'Content-Type: application/json' \
-  -d '{"customerName":"验收员","contact":"138","garmentTemplateId":"hoodie-001","size":"L","quantity":1,"generationJobId":"job-not-exist","privacyAccepted":true}')
+  -d '{"customerName":"E2E-Tester","contact":"138","garmentTemplateId":"hoodie-001","size":"L","quantity":1,"generationJobId":"job-not-exist","privacyAccepted":true}')
 check "非法 generationJobId → 拒绝" '不存在' "$BADJOB"
 
 # ---------- 6. 管理端查询与流转 ----------
