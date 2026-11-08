@@ -66,8 +66,8 @@ assets_raw/   原始素材存档（gitignore）
 | 素材 | 位置 | 规格要求 |
 |---|---|---|
 | 织机视频 | `server/public/assets/loom.mp4` | H.264 MP4 ≤20MB，同名覆盖即生效 |
-| 服装底图 | `miniprogram/assets/garments/*.png` + `assets/data/garments.json` | 透明底PNG；改图后同步更新该款 `printArea`(top/left/width/height 百分比) |
-| 纹样图 | `miniprogram/assets/motifs/` + `assets/data/motifs.json` + `sources.md` | 每图≤300KB；sources.md 登记来源/授权 |
+| 服装底图 | `miniprogram/assets/garments/*.png` + `assets/data/garments.js` | 透明底PNG；改图后同步更新该款 `printArea`(top/left/width/height 百分比) |
+| 纹样图 | `miniprogram/assets/motifs/` + `assets/data/motifs.js` + `sources.md` | 每图≤300KB；sources.md 登记来源/授权（数据为 JS 模块，兼容全部基础库版本） |
 | TabBar 图标 | `miniprogram/assets/tabbar/` | 81×81 PNG；可重跑 `node gen-icons.js` |
 
 「现代转译」4 条素材默认无图（界面优雅占位）——可在演示机用真实 AI 生成后放入 `assets/motifs/` 并回填 JSON 的 `image` 字段。

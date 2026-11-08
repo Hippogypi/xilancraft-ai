@@ -11,7 +11,7 @@ const { absoluteUrl } = require('../../utils/url.js');
 /** 读取本地素材 JSON（另一任务会重写并填充真实图片；此处只按 schema 容错读取） */
 function loadMotifs() {
   try {
-    return require('../../assets/data/motifs.json') || [];
+    return require('../../assets/data/motifs.js') || [];
   } catch (e) {
     return [];
   }

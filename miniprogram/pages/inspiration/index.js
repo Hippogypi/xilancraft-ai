@@ -9,7 +9,7 @@
 /** 读取本地素材 JSON；失败返回 null（页面据此显示加载失败空态） */
 function loadMotifs() {
   try {
-    const data = require('../../assets/data/motifs.json');
+    const data = require('../../assets/data/motifs.js');
     return Array.isArray(data) ? data : null;
   } catch (e) {
     return null;

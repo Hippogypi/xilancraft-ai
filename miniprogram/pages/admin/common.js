@@ -77,7 +77,7 @@ function garmentName(id) {
   if (!garmentNameMap) {
     garmentNameMap = {};
     try {
-      const list = require('../../assets/data/garments.json') || [];
+      const list = require('../../assets/data/garments.js') || [];
       list.forEach(function (g) { garmentNameMap[g.id] = g.name; });
     } catch (e) {
       garmentNameMap = {};

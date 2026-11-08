@@ -17,7 +17,7 @@ const POLL_MAX_CONSECUTIVE_ERRORS = 2; // 轮询网络抖动容忍（超过按�
 
 function loadMotifs() {
   try {
-    return require('../../assets/data/motifs.json') || [];
+    return require('../../assets/data/motifs.js') || [];
   } catch (e) {
     return [];
   }

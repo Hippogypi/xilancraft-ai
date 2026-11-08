@@ -9,7 +9,7 @@ const urlUtil = require('../../utils/url.js');
 
 function loadGarments() {
   try {
-    return require('../../assets/data/garments.json') || [];
+    return require('../../assets/data/garments.js') || [];
   } catch (e) {
     return [];
   }
