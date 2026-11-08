@@ -67,7 +67,7 @@
         >
           <view
             class="preview__pattern"
-            style="left:{{dcLeft + offsetX}}%;top:{{dcTop + offsetY}}%;width:{{40 * scalePct / 100}}%;height:{{40 * scalePct / 100}}%;opacity:{{opacityPct / 100}};"
+            style="left:{{patLeft}}%;top:{{patTop}}%;width:{{patW}}%;height:{{patW}}%;opacity:{{patOp}};"
           >
             <image class="preview__pattern-img" src="{{pattern.imageUrl}}" mode="aspectFit"></image>
           </view>

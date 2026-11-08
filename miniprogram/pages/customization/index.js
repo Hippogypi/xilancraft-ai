@@ -26,6 +26,11 @@ Page({
     // 该款服装印花推荐区中心（舞台百分比）：纹样默认落位，offsetX/Y 相对此点
     dcLeft: 50,
     dcTop: 40,
+    // 纹样渲染值（JS层预计算，视图层不做算术——高频setData时降低diff压力，防渲染层崩溃）
+    patLeft: 50,
+    patTop: 40,
+    patW: 40,
+    patOp: 1,
     // 来自工坊「用此纹样」的生成结果（onShow 经 globalData.pendingPattern 消费）
     // { jobId, imageUrl(已拼 BASE_URL 的绝对地址) }
     pattern: null,
@@ -65,6 +70,13 @@ Page({
     this._ensureStageRect();
   },
 
+  onUnload() {
+    if (this._moveTimer) {
+      clearTimeout(this._moveTimer);
+      this._moveTimer = null;
+    }
+  },
+
   /** 应用选中服装：更新蒙版路径与默认印花中心，重置位置类调节参数 */
   applyGarment(garment) {
     if (!garment) return;
@@ -75,12 +87,36 @@ Page({
       garment: garment,
       maskSrc: rel ? '../../' + rel : '',
       dcLeft: +(pa.left + pa.width / 2).toFixed(1),
-      dcTop: +(pa.top + pa.height / 2).toFixed(1),
-      offsetX: 0,
-      offsetY: 0,
-      scalePct: 100,
-      opacityPct: 100
+      dcTop: +(pa.top + pa.height / 2).toFixed(1)
     });
+    this.applyAdjust({ offsetX: 0, offsetY: 0, scalePct: 100, opacityPct: 100 });
+  },
+
+  /**
+   * 统一调节入口：合并参数变更并预计算纹样渲染值（一次setData，视图层零算术）。
+   * 高频调用（拖拽/滑杆bindchanging）由调用方节流；值无变化时自动跳过。
+   */
+  applyAdjust(patch) {
+    const d = this.data;
+    const next = {
+      offsetX: patch.offsetX !== undefined ? patch.offsetX : d.offsetX,
+      offsetY: patch.offsetY !== undefined ? patch.offsetY : d.offsetY,
+      scalePct: patch.scalePct !== undefined ? patch.scalePct : d.scalePct,
+      opacityPct: patch.opacityPct !== undefined ? patch.opacityPct : d.opacityPct
+    };
+    const render = {
+      patLeft: +(d.dcLeft + next.offsetX).toFixed(1),
+      patTop: +(d.dcTop + next.offsetY).toFixed(1),
+      patW: +(40 * next.scalePct / 100).toFixed(1),
+      patOp: +(next.opacityPct / 100).toFixed(2)
+    };
+    const noChange =
+      render.patLeft === d.patLeft && render.patTop === d.patTop &&
+      render.patW === d.patW && render.patOp === d.patOp &&
+      next.offsetX === d.offsetX && next.offsetY === d.offsetY &&
+      next.scalePct === d.scalePct && next.opacityPct === d.opacityPct;
+    if (noChange) return;
+    this.setData(Object.assign({}, next, render));
   },
 
   onShow() {
@@ -103,7 +139,11 @@ Page({
         scalePct: 100,
         offsetX: 0,
         offsetY: 0,
-        opacityPct: 100
+        opacityPct: 100,
+        patLeft: this.data.dcLeft,
+        patTop: this.data.dcTop,
+        patW: 40,
+        patOp: 1
       });
       wx.showToast({ title: '已带入生成纹样', icon: 'none' });
     }
@@ -144,23 +184,45 @@ Page({
     const dx = ((t.clientX - this._drag.x0) / this._stageRect.width) * 100;
     const dy = ((t.clientY - this._drag.y0) / this._stageRect.height) * 100;
     const clamp = function (v) { return Math.max(-50, Math.min(50, Math.round(v))); };
-    this.setData({ offsetX: clamp(this._drag.ox + dx), offsetY: clamp(this._drag.oy + dy) });
+    this._lastMove = { offsetX: clamp(this._drag.ox + dx), offsetY: clamp(this._drag.oy + dy) };
+    // 节流：≥32ms 才真正 setData（touchmove 每秒可达60+次，高频 setData 会打爆渲染层）
+    const now = Date.now();
+    if (now - (this._lastMoveApply || 0) >= 32) {
+      this._lastMoveApply = now;
+      this._flushMove();
+    } else if (!this._moveTimer) {
+      this._moveTimer = setTimeout(() => {
+        this._moveTimer = null;
+        this._flushMove();
+      }, 32);
+    }
+  },
+  _flushMove() {
+    if (!this._lastMove) return;
+    this._lastMoveApply = Date.now();
+    this.applyAdjust(this._lastMove);
   },
   onStageTouchEnd() {
+    if (this._moveTimer) {
+      clearTimeout(this._moveTimer);
+      this._moveTimer = null;
+    }
+    this._flushMove();
     this._drag = null;
+    this._lastMove = null;
   },
-  // bindchanging + bindchange 双绑：拖动实时生效
+  // bindchanging + bindchange 双绑：统一走 applyAdjust（预计算渲染值）
   onScaleChange(e) {
-    this.setData({ scalePct: e.detail.value });
+    this.applyAdjust({ scalePct: e.detail.value });
   },
   onOffsetXChange(e) {
-    this.setData({ offsetX: e.detail.value });
+    this.applyAdjust({ offsetX: e.detail.value });
   },
   onOffsetYChange(e) {
-    this.setData({ offsetY: e.detail.value });
+    this.applyAdjust({ offsetY: e.detail.value });
   },
   onOpacityChange(e) {
-    this.setData({ opacityPct: e.detail.value });
+    this.applyAdjust({ opacityPct: e.detail.value });
   },
   onSizeChange(e) {
     this.setData({ sizeValue: e.detail.value });
