@@ -40,7 +40,7 @@ module.exports = [
   {
     "id": "motif-taitai-001",
     "name": "台台花",
-    "patternCore": "几何虎头：竖耳圆目、方正块面",
+    "patternCore": "几何虎头，竖耳圆目、方正块面",
     "patternDesc": "极度几何化的虎头（双耳竖立、圆目、额间纹）与船形横条组合成菱形块面，多个菱形作连续排布，轮廓方正、块面对比强烈",
     "category": "traditional",
     "image": "/assets/motifs/motif-taitaihua.jpg",
