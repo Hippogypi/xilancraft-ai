@@ -78,7 +78,9 @@ const openaiCompatibleAdapter = {
     const timeoutMs = cfg.timeoutMs || DEFAULT_TIMEOUT_MS;
 
     const body = { model: cfg.modelId, prompt: input.prompt };
-    if (input.size && /^\d{2,5}x\d{2,5}$/.test(String(input.size))) body.size = String(input.size);
+    // size 仅智谱 CogView 系使用（其他平台可能对额外字段严格校验，如硅基流动用 image_size）
+    const isBigmodel = /bigmodel\.cn/i.test(String(cfg.baseUrl));
+    if (isBigmodel && input.size && /^\d{2,5}x\d{2,5}$/.test(String(input.size))) body.size = String(input.size);
 
     const resp = await fetchWithTimeout(
       url,
@@ -119,9 +121,20 @@ const openaiCompatibleAdapter = {
     } catch (e) {
       throw new ApiError(502, 'GENERATION_FAILED', '上游响应不是合法JSON');
     }
-    const imgUrl = json && json.data && json.data[0] && json.data[0].url;
-    if (!imgUrl) {
+    // 兼容两种响应形态：智谱/OpenAI 风格 data[0]；硅基流动风格 images[0]；url 或 b64_json 皆可
+    const item = (json && ((json.data && json.data[0]) || (json.images && json.images[0]))) || null;
+    const imgUrl = item && typeof item.url === 'string' ? item.url : '';
+    const b64 = item && typeof item.b64_json === 'string' ? item.b64_json : '';
+    if (!imgUrl && !b64) {
       throw new ApiError(502, 'GENERATION_FAILED', '上游未返回图片（可能触发内容审核，请调整提示词后重试）');
+    }
+    if (b64) {
+      // b64 直返：解码即完成，无需下载
+      const buf = Buffer.from(b64, 'base64');
+      if (buf.length > MAX_DOWNLOAD_BYTES) throw new ApiError(502, 'GENERATION_FAILED', '上游图片超出大小限制');
+      const sniffedB64 = sniffBytes(buf);
+      if (!sniffedB64) throw new ApiError(502, 'GENERATION_FAILED', '上游返回了非图片内容');
+      return { kind: 'completed', imageBytes: buf, mimeType: sniffedB64 };
     }
 
     // 下载图片落盘前的SSRF校验（返回的URL同样不允许指向内网）
