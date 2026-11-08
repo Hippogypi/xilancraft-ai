@@ -123,7 +123,7 @@
         </view>
       </view>
     </scroll-view>
-    <text class="xl-text-faint ref-hint">选择后生成请求将携带 referenceMotifId，并把纹样名称与关键词注入提示词</text>
+    <text class="xl-text-faint ref-hint">选择后 AI 将按该纹样的图案结构（骨架逻辑）进行解构与现代化重构</text>
   </xl-card>
 
   <!-- ⑧ 免费额度/限频提示位 -->

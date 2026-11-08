@@ -222,9 +222,12 @@ Page({
       return;
     }
 
+    // 参考纹样图案结构描述（patternDesc）：让模型真正"重构"所选纹样的图案
+    const refMotif = this.data.referenceMotifs.find((m) => m.id === this.data.referenceMotifId);
     const fullPrompt = promptBuilder.buildPrompt({
       motifName: this.data.referenceMotifName,
       motifKeywords: this.data.referenceKeywords,
+      motifDesc: refMotif ? (refMotif.patternDesc || '') : '',
       colors: {
         mainName: this.data.mainName,
         auxName: this.data.auxName,
