@@ -1,59 +1,53 @@
 /**
  * utils/prompt-builder.js —— 西兰卡普重构型 Prompt 组装（WBS 04.02 / 规格 §7）
  *
- * 模板 v5（用户要求与系统原料显式分级，用户 prompt 为最高优先级）：
- *   服装印花图案设计稿。
- *   【重构原料（仅供参考，非强制样式）】以「{名称}」为原型——{patternDesc 图案结构描述}。
- *     该纹样结构仅作为解构与现代化重构的素材基础，需能看出骨架传承；
- *     具体风格、构图与细节一律以下方用户要求为准。
- *   【用户要求（最高优先级，一切以用户描述为准）】{userPrompt}
- *   【补充约束（若与用户要求冲突，以用户要求为准）】
- *     配色：{主色/双色占比限定}
- *     画面：扁平图案设计稿、主体居中、纯白背景（服务端自动抠底）等硬性技术要求
+ * 模板 v6（视觉结构模板，依 2026-11-08 优化任务书）：
+ *   【设计主题】{用户自由输入，一字不改、不截断}
+ *   【参考纹样】{名称：patternCore 短骨架}（未选参考则整段省略）
+ *   【西兰卡普视觉语言】参考西兰卡普织锦的几何造型，使用菱形、三角形、阶梯折线、重复排列等图形语言进行创作。
+ *   【配色】以「主色」为主色、「辅色」为点缀色，其余用黑白中性色。（单色模式无辅色句）
+ *   【输出要求】二维平面装饰纹样，主体完整，轮廓清晰，纯白背景，适合服装印花。
  *
- * v5 变更（相对 v4）：
- * - 移除构图/手法随机变体池——款式雷同属模型能力局限，不应以随机组合干扰用户意图
- * - 用户/系统指令显式分级：用户 prompt 最高优先，系统段仅提供重构原料与 Technical 约束
+ * v6 设计原则（相对 v5 分级模板）：
+ * - 文化概念 → 视觉结构：删除"现代化转译/传承关系/解构重组素材"等抽象元话语，
+ *   通用视觉语言与纹样骨架均落到菱形/三角/阶梯折线/重复排列等可执行图形词汇
+ * - 优先级与冲突处理收进组装逻辑（段落顺序即优先级），提示词内不再出现
+ *   "以用户为准/仅供参考/冲突让位"类元声明；用户输入不截断、不去尾缀
+ * - 具体参考纹样的独有骨架为主要图形参考，通用视觉语言仅作风格锚（防同质化由
+ *   patternCore 的形状/排列差异承担）
+ * - 输出约束一句话正述（不再堆摄影/场景/人物/文字否定词），保留"纯白背景"锚点
+ *   以兼容服务端质检门闩与自动抠底流水线
+ *
+ * 版本谱系：v2 硬约束 → v3 色名 → v4 patternDesc+面积强制 → v5 分级指令
+ *   →（外部实验 v6~v10 留档：弱模型下超长模板稀释主题、过度极简失锚）
+ *   → v6 视觉结构模板（现行）
  */
 'use strict';
 
-const DEFAULT_REFERENCE_NAME = '经典几何纹样';
+/** 通用西兰卡普视觉语言（默认风格锚，正述、可执行图形词汇） */
+const XIANKAPU_VISUAL_LANGUAGE =
+  '参考西兰卡普织锦的几何造型，使用菱形、三角形、阶梯折线、重复排列等图形语言进行创作。';
 
-/** 参考纹样名 + 关键词 → 名称片段 */
-function buildReferenceName(motifName, motifKeywords) {
+/** 输出约束（一句话正述；"纯白背景"为质检门闩与自动抠底的技术锚点，不可删） */
+const OUTPUT_CONSTRAINT =
+  '二维平面装饰纹样，主体完整，轮廓清晰，纯白背景，适合服装印花。';
+
+/** 参考纹样段：名称 + 短骨架（patternCore 优先，patternDesc 兜底）；无参考返回空串 */
+function buildMotifSection(motifName, motifDesc) {
   const name = (motifName || '').trim();
-  const kws = Array.isArray(motifKeywords)
-    ? motifKeywords
-        .map(function (k) { return String(k || '').trim(); })
-        .filter(function (k) { return k; })
-    : [];
-  if (!name && !kws.length) return DEFAULT_REFERENCE_NAME;
-  if (!name) return kws.join('、');
-  if (!kws.length) return name;
-  return name + '，关键词：' + kws.join('、');
-}
-
-/** 重构原料段：有结构描述时注入 patternDesc（仅作素材，不约束样式）；无参考时给默认几何语言 */
-function buildMaterialSection(motifName, motifKeywords, motifDesc) {
-  const name = (motifName || '').trim() || buildReferenceName(motifName, motifKeywords);
-  const desc = (motifDesc || '').trim();
-  if (desc) {
-    return '【重构原料（仅供参考，非强制样式）】以「' + name + '」为原型——' + desc +
-      '。该纹样结构仅作为解构与现代化重构的素材基础，成品需能看出与原纹样的骨架传承关系；' +
-      '具体风格、构图与细节一律以下方【用户要求】为准，不要复刻原图。';
-  }
-  return '【重构原料（仅供参考，非强制样式）】西兰卡普经典几何语言：' + buildReferenceName(motifName, motifKeywords) +
-    '，菱形骨架、勾连折线、通经断纬的色块交织。仅作为创作素材，具体表现以下方【用户要求】为准。';
+  const core = (motifDesc || '').trim();
+  if (!core) return '';
+  return '【参考纹样】' + (name ? name + '：' : '') + core + '。';
 }
 
 /**
- * 组装完整提示词
+ * 组装完整提示词（组装逻辑即优先级：设计主题在最前，视觉语言仅作锚，输出约束收尾）
  * @param {Object} opts
  *   motifName {String} 参考纹样名（可空）
- *   motifKeywords {String[]} 参考纹样关键词
- *   motifDesc {String} 参考纹样图案结构描述（素材 patternDesc，可空）
+ *   motifKeywords {String[]} 兼容保留（v6 不注入关键词，图形结构由 motifDesc 承担）
+ *   motifDesc {String} 纹样短骨架（工坊传 patternCore，兜底 patternDesc；可空→省略参考段）
  *   colors {Object} { mainName, auxName, dual }（取色器状态）
- *   userPrompt {String} 用户提示词（最高优先级：风格/构图/部位/创意自由描述）
+ *   userPrompt {String} 用户提示词（【设计主题】原文注入，不截断）
  * @returns {String} 组装后的完整提示词
  */
 function buildPrompt(opts) {
@@ -64,23 +58,24 @@ function buildPrompt(opts) {
   const auxName = dual ? colors.auxName.trim() : '';
 
   const colorSentence = dual
-    ? '配色：以「' + mainName + '」为主色（约60%面积）、「' + auxName + '」为点缀色（约30%），其余可用黑白中性色，避免出现其他色相。'
-    : '配色：以「' + mainName + '」为主色（约60%面积），辅色仅用黑白中性色，避免出现其他色相。';
+    ? '【配色】以「' + mainName + '」为主色、「' + auxName + '」为点缀色，其余用黑白中性色。'
+    : '【配色】以「' + mainName + '」为主色，辅色用黑白中性色。';
 
-  const material = buildMaterialSection(opts.motifName, opts.motifKeywords, opts.motifDesc);
+  const parts = [];
   const userPrompt = (opts.userPrompt || '').trim();
-
-  return '服装印花图案设计稿。' +
-    material +
-    '【用户要求（最高优先级，一切以用户描述为准）】' + userPrompt + '。' +
-    '【补充约束（若与上述用户要求冲突，以用户要求为准）】' +
-    colorSentence +
-    '画面：扁平插画风格图案，主体居中醒目、纹样边界清晰；' +
-    '纯白色背景（服务端将自动抠除背景形成透明底）；禁止照片写实、禁止风景天空草地、禁止人物、禁止任何文字。';
+  // 仅在缺尾标点时补句号做段间隔（不改写、不截断用户内容）
+  if (userPrompt) parts.push('【设计主题】' + userPrompt + (/[。．.!！?？…]$/.test(userPrompt) ? '' : '。'));
+  const motifSection = buildMotifSection(opts.motifName, opts.motifDesc);
+  if (motifSection) parts.push(motifSection);
+  parts.push('【西兰卡普视觉语言】' + XIANKAPU_VISUAL_LANGUAGE);
+  parts.push(colorSentence);
+  parts.push('【输出要求】' + OUTPUT_CONSTRAINT);
+  return parts.join('');
 }
 
 module.exports = {
   buildPrompt: buildPrompt,
-  buildReferenceName: buildReferenceName,
-  DEFAULT_REFERENCE_NAME: DEFAULT_REFERENCE_NAME
+  buildMotifSection: buildMotifSection,
+  XIANKAPU_VISUAL_LANGUAGE: XIANKAPU_VISUAL_LANGUAGE,
+  OUTPUT_CONSTRAINT: OUTPUT_CONSTRAINT
 };

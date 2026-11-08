@@ -6,7 +6,7 @@
  * - 图生图（v2）：referenceMotifId 命中纹样底图清单（prepare-motif-bases.js 产物）时
  *   携带底图走 Provider 的 images/edits 端点；无底图 / Provider 不支持 / 清单缺失
  *   → 自动退化为纯文生图（纹样结构约束由前端 patternDesc 提示词承担）
- * - 防注入：sanitizePrompt 在入库前剔除常见指令覆盖类短语（与前端 v5 模板双保险）
+ * - 防注入：sanitizePrompt 在入库前剔除常见指令覆盖类短语（与前端 v6 模板双保险）
  */
 'use strict';
 

@@ -55,7 +55,7 @@ npm start                       # 或 node src/index.js
 
 **纹样图生图**：`scripts/prepare-motif-bases.js` 将 6 条传统纹样预处理为 1024×1024 规范底图（白底 letterbox + 中值滤波去织物噪）存于 `server/public/assets/motif-bases/`（换机/改素材后重跑一次即可）。用户在工坊选择参考纹样且激活的 Provider 支持 `images/edits` 时，后端携带底图请求图生图，模型"看着"原纹样做现代化重构；4 条现代转译纹样无底图，自动走纯文生图。
 
-**透明底机制**：生图模型均不输出透明通道。本项目的方案：提示词模板 **v5 分级模板**（【重构原料】仅供参考、【用户要求】最高优先级、【补充约束】冲突让位；纹样原料用 `patternCore` 短骨架——受控对照实验留档：弱模型下超长模板易稀释主题，短原料可降低该风险；服务端另有 `sanitizePrompt` 注入短语黑名单清洗）→ 落盘前**质检门闩**（边缘采样：白底或纯色均匀底才判成功，风景/照片类偏离输出如实失败并留 `.src` 快照；Provider settings 加 `retryOnGateFail:true` 可自动重试一次，免费模型建议开启）→ sharp 边缘泛洪 v2.1 抠底：自适应容差、Alpha 向内羽化 1~2px、边缘去污染、**"AI生成"水印残片清理**，输出真 Alpha 透明 PNG。离线回归：`tools/node/node.exe scripts/test-bg-remove.js`。
+**透明底机制**：生图模型均不输出透明通道。本项目的方案：提示词模板 **v6 视觉结构模板**（【设计主题】用户输入原文在最前、不截断；【参考纹样】patternCore 短骨架；【西兰卡普视觉语言】可执行图形词汇锚；【输出要求】一句话正述含纯白背景锚点；服务端另有 `sanitizePrompt` 注入短语黑名单清洗）→ 落盘前**质检门闩**（边缘采样：白底或纯色均匀底才判成功，风景/照片类偏离输出如实失败并留 `.src` 快照；Provider settings 加 `retryOnGateFail:true` 可自动重试一次，免费模型建议开启）→ sharp 边缘泛洪 v2.1 抠底：自适应容差、Alpha 向内羽化 1~2px、边缘去污染、**"AI生成"水印残片清理**，输出真 Alpha 透明 PNG。离线回归：`tools/node/node.exe scripts/test-bg-remove.js`。
 
 ## 目录
 
