@@ -1,7 +1,7 @@
 /**
  * pages/workshop —— AI 定制工坊（WBS 04 P0）
  * 表单：提示词（自由描述风格/部位/创意）/ 可视化配色（主色+可选辅色，快捷色板+HSL自由调色）/ 参考纹样
- * 生成链路：utils/prompt-builder.js v3 组装完整提示词（颜色以中文色名注入）
+ * 生成链路：utils/prompt-builder.js v5 分级模板组装完整提示词（用户要求最高优先级）
  *   → POST /api/generations { mode:'text_to_image', prompt, size:'1024x1024', referenceMotifId? }
  *   → setTimeout 链轮询 GET /api/generations/:id（间隔 2s、最长 150s）
  * 状态：idle / running / succeeded / failed（前端超时、额度不足等与失败同态，
@@ -180,7 +180,8 @@ Page({
   /* ---------- 参考纹样 ---------- */
   onRefTap(e) {
     const id = e.currentTarget.dataset.id || '';
-    if (!id) {
+    // 点「无参考」或再次点击已选中卡片 → 取消选中
+    if (!id || id === this.data.referenceMotifId) {
       this.onRemoveReference();
       return;
     }
@@ -222,12 +223,12 @@ Page({
       return;
     }
 
-    // 参考纹样图案结构描述（patternDesc）：让模型真正"重构"所选纹样的图案
+    // 参考纹样结构（patternCore 短骨架优先，兜底 patternDesc 截断）：v8 紧凑模板原料
     const refMotif = this.data.referenceMotifs.find((m) => m.id === this.data.referenceMotifId);
     const fullPrompt = promptBuilder.buildPrompt({
       motifName: this.data.referenceMotifName,
       motifKeywords: this.data.referenceKeywords,
-      motifDesc: refMotif ? (refMotif.patternDesc || '') : '',
+      motifDesc: refMotif ? (refMotif.patternCore || refMotif.patternDesc || '') : '',
       colors: {
         mainName: this.data.mainName,
         auxName: this.data.auxName,

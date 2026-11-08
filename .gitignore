@@ -22,3 +22,9 @@ miniprogram/project.private.config.json
 *.log
 .DS_Store
 Thumbs.db
+
+# ZCode 会话目录
+.zcode/
+
+# 服务端测试临时产物
+server/.test-tmp/

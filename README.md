@@ -44,14 +44,18 @@ npm start                       # 或 node src/index.js
 
 ## 切换到真实 AI（演示前必做一次）
 
-1. 管理端登录 → 「AI 接口配置」→ 新增配置：
-   - 类型 `openai_compatible`；Base URL `https://open.bigmodel.cn/api/paas/v4`
-   - 模型 ID `cogview-3-flash`（**免费**）或 `cogview-4`（**约 0.06 元/张，效果更好**，需账户有余额，充 10 元可生成约 160 张）
-   - API Key：[open.bigmodel.cn](https://open.bigmodel.cn) 的密钥（仅加密存于服务端 SQLite，接口只回 `hasApiKey`）
+1. 管理端登录 → 「AI 接口配置」→ 新增配置（二选一或都建、择一激活）：
+   - **智谱（纯文生图）**：类型 `openai_compatible`；Base URL `https://open.bigmodel.cn/api/paas/v4`
+     - 模型 ID `cogview-3-flash`（**免费**）或 `cogview-4`（**约 0.06 元/张，效果更好**，需账户有余额，充 10 元可生成约 160 张）
+   - **硅基流动（文生图 + 纹样图生图）**：类型 `openai_compatible`；Base URL `https://api.siliconflow.cn/v1`
+     - 模型 ID `Kwai-Kolors/Kolors`（**免费**，限速）；用户选择参考纹样时自动携带纹样底图走图生图（`images/edits`，重构强度默认 0.55，可在 Provider settings 的 `strength` 调整 0.05~0.95；`img2img:false` 可整体关闭图生图）
+   - API Key：对应平台密钥（仅加密存于服务端 SQLite，接口只回 `hasApiKey`）
 2. 「测试生成」→ 出图且耗时正常 → 「激活」
 3. 用户端任意新提示词即真实生图；额度耗尽（429）时管理端可即时切换其他配置，**无需改前端代码**
 
-**透明底机制**：文生图模型均不输出透明通道。本项目的方案：提示词模板强制「纯白色背景的扁平图案稿」→ 服务端在落盘前用 sharp 边缘泛洪算法自动抠除背景输出透明 PNG（仅抠与边缘连通的背景色区域，主体内部同色不误伤；抠除比例异常时自动放弃保原图，另存 `.src` 原图快照供比对）。
+**纹样图生图**：`scripts/prepare-motif-bases.js` 将 6 条传统纹样预处理为 1024×1024 规范底图（白底 letterbox + 中值滤波去织物噪）存于 `server/public/assets/motif-bases/`（换机/改素材后重跑一次即可）。用户在工坊选择参考纹样且激活的 Provider 支持 `images/edits` 时，后端携带底图请求图生图，模型"看着"原纹样做现代化重构；4 条现代转译纹样无底图，自动走纯文生图。
+
+**透明底机制**：生图模型均不输出透明通道。本项目的方案：提示词模板 **v5 分级模板**（【重构原料】仅供参考、【用户要求】最高优先级、【补充约束】冲突让位；纹样原料用 `patternCore` 短骨架——受控对照实验留档：弱模型下超长模板易稀释主题，短原料可降低该风险；服务端另有 `sanitizePrompt` 注入短语黑名单清洗）→ 落盘前**质检门闩**（边缘采样：白底或纯色均匀底才判成功，风景/照片类偏离输出如实失败并留 `.src` 快照；Provider settings 加 `retryOnGateFail:true` 可自动重试一次，免费模型建议开启）→ sharp 边缘泛洪 v2.1 抠底：自适应容差、Alpha 向内羽化 1~2px、边缘去污染、**"AI生成"水印残片清理**，输出真 Alpha 透明 PNG。离线回归：`tools/node/node.exe scripts/test-bg-remove.js`。
 
 ## 目录
 

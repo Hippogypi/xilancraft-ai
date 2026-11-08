@@ -91,10 +91,12 @@
 ```json
 {
   "mode": "text_to_image",
-  "prompt": "最终组装后的完整提示词（前端已按重构模板拼装）",
+  "prompt": "最终组装后的完整提示词（前端已按重构模板拼装；服务端另做注入短语清洗）",
   "style": "modern_streetwear",
   "size": "1024x1024",
-  "referenceMotifId": "motif-bird-001"  // 可空；近似图生图：后端把该纹样关键词注入提示词
+  "referenceMotifId": "motif-bird-001"  // 可空；图生图：后端查纹样底图清单（server/public/assets/motif-bases/manifest.json），
+                                        // 命中则携带底图走 Provider 的 images/edits 端点（重构强度由 Provider settings.strength 控制，默认0.55）；
+                                        // 未命中（无底图/Provider不支持edits/清单缺失）自动退化为纯文生图，纹样结构由 prompt 中的 patternDesc 承担
 }
 ```
 

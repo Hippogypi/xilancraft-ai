@@ -1,0 +1,29 @@
+{
+  "generatedAt": "2026-11-08T09:58:05.462Z",
+  "motifs": {
+    "motif-48gou-001": {
+      "file": "motif-48gou-001.png",
+      "name": "四十八勾"
+    },
+    "motif-yangque-001": {
+      "file": "motif-yangque-001.png",
+      "name": "阳雀花"
+    },
+    "motif-taitai-001": {
+      "file": "motif-taitai-001.png",
+      "name": "台台花"
+    },
+    "motif-mabi-001": {
+      "file": "motif-mabi-001.png",
+      "name": "马毕（马匹纹）"
+    },
+    "motif-yanqiang-001": {
+      "file": "motif-yanqiang-001.png",
+      "name": "岩墙花"
+    },
+    "motif-fengmudan-001": {
+      "file": "motif-fengmudan-001.png",
+      "name": "凤穿牡丹"
+    }
+  }
+}

@@ -3,6 +3,10 @@
  * 状态机：queued → running → succeeded | failed
  * - 提交即返回jobId，异步执行；图片落盘 data/generated；默认120s超时
  * - 单任务不自动重试（规格§8.1）；Provider快照存于任务行
+ * - 图生图（v2）：referenceMotifId 命中纹样底图清单（prepare-motif-bases.js 产物）时
+ *   携带底图走 Provider 的 images/edits 端点；无底图 / Provider 不支持 / 清单缺失
+ *   → 自动退化为纯文生图（纹样结构约束由前端 patternDesc 提示词承担）
+ * - 防注入：sanitizePrompt 在入库前剔除常见指令覆盖类短语（与前端 v5 模板双保险）
  */
 'use strict';
 
@@ -14,7 +18,7 @@ const { ApiError } = require('../utils/respond');
 const { newId } = require('../utils/crypto');
 const { sanitizeMessage, log } = require('../utils/logger');
 const { getAdapter } = require('../providers');
-const { removeSolidBackground } = require('../utils/bg-remove');
+const { removeSolidBackground, evaluateEdgeBackground } = require('../utils/bg-remove');
 const quota = require('./quota');
 const { getActiveProviderRow, getProviderRow, buildProviderConfig, parseSettings } = require('./providerService');
 
@@ -24,6 +28,40 @@ const MIME_EXT = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp'
 /** 固定测试提示词（契约§4：test端点用1条固定测试提示词真实生成） */
 const TEST_PROMPT =
   '西兰卡普织锦风格测试图：纯白色背景，红黄黑配色，菱形几何骨架与锯齿纹组合的扁平服装印花图案，主体完整居中';
+
+/** 指令覆盖类注入短语黑名单（大小写不敏感部分条目；剔除而非拒报，避免误伤正常输入） */
+const PROMPT_INJECTION_PATTERNS = [
+  /忽略(以上|上述|之前|前面|所有|一切)(的)?(指令|要求|约束|设定|提示词?|规则)/g,
+  /(无视|忽视)(以上|上述|之前|前面|所有|一切)(的)?(指令|要求|约束|设定|规则)/g,
+  /不要(遵守|遵循|执行)(以上|上述|任何|所有)(的)?(指令|要求|约束|规则)/g,
+  /(?:ignore|disregard|forget|override)\s+(?:all\s+|any\s+)?(?:above|previous|prior|earlier|preceding)\s+(?:instructions?|prompts?|constraints?|rules?|settings?)/gi,
+  /(?:system\s*prompt|系统提示词|开发者模式|developer\s*mode)/gi,
+];
+
+/** 服务端防注入：剔除黑名单短语并压缩多余空白（正常创意输入不受影响） */
+function sanitizePrompt(prompt) {
+  let p = String(prompt || '');
+  for (const re of PROMPT_INJECTION_PATTERNS) p = p.replace(re, '');
+  return p.replace(/[ \t]{2,}/g, ' ').trim();
+}
+
+/** 纹样底图清单（MOTIF_BASES_DIR/manifest.json，prepare-motif-bases.js 产物），懒加载缓存 */
+let motifManifest; // undefined=未加载；null=清单不可用；object=motifId → {file,name}
+function getMotifManifest() {
+  if (motifManifest !== undefined) return motifManifest;
+  try {
+    const p = path.join(config.MOTIF_BASES_DIR, 'manifest.json');
+    if (fs.existsSync(p)) {
+      const j = JSON.parse(fs.readFileSync(p, 'utf8'));
+      motifManifest = j && typeof j === 'object' && j.motifs && typeof j.motifs === 'object' ? j.motifs : null;
+    } else {
+      motifManifest = null;
+    }
+  } catch (e) {
+    motifManifest = null;
+  }
+  return motifManifest;
+}
 
 function imageUrlFor(filename) {
   return filename ? `/api/images/generated/${path.basename(filename)}` : null;
@@ -76,13 +114,29 @@ async function submitGeneration(body) {
   quota.assertCooldown();
   quota.assertDailyQuota(provider);
 
-  // ---- 近似图生图：参考纹样关键词注入提示词（决策基线）----
-  let finalPrompt = prompt;
-  if (motifId) finalPrompt = `${finalPrompt}，融合参考纹样「${motifId}」的典型视觉元素`;
+  // ---- 提示词：服务端防注入清洗（黑名单短语剔除，配合前端 v6 模板双保险）----
+  let finalPrompt = sanitizePrompt(prompt);
+  if (!finalPrompt) {
+    throw new ApiError(400, 'VALIDATION_ERROR', '提示词清洗后为空（内容全部为指令覆盖类短语），请重新输入创意描述');
+  }
 
-  // ---- 可选参考图（来自 /api/uploads/reference）----
+  // ---- 参考图解析：纹样底图（图生图）优先，用户上传图次之 ----
   let referenceImagePath = null;
-  if (b.referenceImageId !== undefined && b.referenceImageId !== null && b.referenceImageId !== '') {
+  if (motifId) {
+    // 仅支持 images/edits 的 Provider 走图生图：智谱 CogView 系为纯文生图，显式跳过；
+    // settings.img2img=false 可为任意 Provider 手动关闭图生图
+    const settings = parseSettings(provider.settings_json);
+    const supportsEdits = !/bigmodel\.cn/i.test(provider.base_url || '') && settings.img2img !== false;
+    const entry = supportsEdits ? (getMotifManifest() || {})[motifId] : null;
+    if (entry && typeof entry.file === 'string' && entry.file) {
+      if (fs.existsSync(path.join(config.MOTIF_BASES_DIR, path.basename(entry.file)))) {
+        referenceImagePath = path.basename(entry.file);
+        log('info', '纹样图生图：携带底图', { motifId });
+      }
+    }
+    // 未命中（无底图/清单缺失/Provider不支持）→ 纯文生图，纹样结构约束由 patternDesc 提示词承担
+  }
+  if (!referenceImagePath && b.referenceImageId !== undefined && b.referenceImageId !== null && b.referenceImageId !== '') {
     if (typeof b.referenceImageId !== 'string' || !/^[A-Za-z0-9-]+$/.test(b.referenceImageId)) {
       throw new ApiError(400, 'VALIDATION_ERROR', 'referenceImageId 不合法');
     }
@@ -113,12 +167,15 @@ async function submitGeneration(body) {
   return { jobId: id, status: 'queued' };
 }
 
-/** 内部：尝试自动抠底（纯色背景→透明PNG）；不适合或失败时返回null保原样 */
+/** 内部：尝试自动抠底（纯色背景→透明PNG，v2 含羽化与去污染）；不适合或失败时返回null保原样 */
 async function autoMatting(imageBytes) {
   try {
     const r = await removeSolidBackground(imageBytes);
     if (r) {
-      log('info', '生成图自动抠底', { ratio: Number(r.ratio.toFixed(3)) });
+      log('info', '生成图自动抠底', {
+        ratio: Number(r.ratio.toFixed(3)),
+        semiRatio: Number((r.semiRatio || 0).toFixed(4)), // 羽化带占比（边缘质量观测）
+      });
       return { buffer: r.buffer, mimeType: 'image/png' };
     }
     log('info', '生成图跳过抠底（背景不纯或主体同色）', {});
@@ -128,11 +185,26 @@ async function autoMatting(imageBytes) {
   return null;
 }
 
-/** 内部：落盘结果图（含自动抠底；保留.src原图快照供比对）并更新任务为succeeded */
+/** 内部：落盘结果图（质检门闩 + 自动抠底；保留.src原图快照供比对）并更新任务为succeeded */
 async function completeJob(jobId, imageBytes, mimeType) {
   try {
     fs.writeFileSync(path.join(config.GENERATED_DIR, `${jobId}.src.${MIME_EXT[mimeType] || 'png'}`), imageBytes);
   } catch (e) { /* 快照失败不影响主流程 */ }
+
+  // 质检门闩：非"白底/纯色均匀底"的输出（风景/照片等任务偏离）如实判失败，
+  // 不让垃圾图伪装成成功结果（.src 快照已留档供排查）。解析异常时跳过门闩不拦截
+  const verdict = await evaluateEdgeBackground(imageBytes);
+  if (verdict && !verdict.patternLike) {
+    log('warn', '质检门闩：生成结果偏离图案稿形态，判失败', {
+      jobId,
+      medianLum: Math.round(verdict.medianLum),
+      spread: Math.round(verdict.spread),
+    });
+    const err = new ApiError(502, 'GENERATION_FAILED', '生成结果不是白底图案稿（模型偏离任务），请重试或调整提示词');
+    err.gateFail = true; // 供 processJob 识别，可按 settings.retryOnGateFail 自动重试一次
+    throw err;
+  }
+
   const matted = await autoMatting(imageBytes);
   if (matted) {
     imageBytes = matted.buffer;
@@ -173,22 +245,62 @@ async function processJob(jobId, input) {
     const deadline = Date.now() + (settings.timeout ? settings.timeout * 1000 : config.GENERATION_TIMEOUT_MS);
     const adapter = getAdapter(provider.adapter_type);
 
-    let result = await adapter.generate({ prompt: job.prompt, size: (input && input.size) || settings.size || '1024x1024' }, cfg);
-
-    // 异步协议：pending → 记录remote_job_id并轮询（同步协议不会走到这里）
-    while (result.kind === 'pending') {
-      if (!adapter.poll) throw new ApiError(502, 'GENERATION_FAILED', '该适配器不支持异步任务轮询');
-      if (Date.now() >= deadline) throw new ApiError(504, 'GENERATION_TIMEOUT', '生成超时（超过上游时限）');
-      db.prepare('UPDATE generation_jobs SET remote_job_id=? WHERE id=?').run(result.remoteJobId, jobId);
-      await sleep(2000);
-      result = await adapter.poll(result.remoteJobId, cfg);
+    // 参考图（图生图输入）：优先 uploads 目录，其次纹样底图目录；缺失则按文生图执行
+    let referenceImage = null;
+    if (job.reference_image_path) {
+      const safeName = path.basename(job.reference_image_path);
+      const refPath = [path.join(config.UPLOADS_DIR, safeName), path.join(config.MOTIF_BASES_DIR, safeName)].find((f) =>
+        fs.existsSync(f)
+      );
+      if (refPath) {
+        referenceImage = fs.readFileSync(refPath);
+      } else {
+        log('warn', '参考图文件缺失，按文生图执行', { jobId, ref: safeName });
+      }
     }
 
-    if (result.kind === 'completed') {
-      await completeJob(jobId, result.imageBytes, result.mimeType);
-      log('info', '生成任务成功', { jobId, providerId: provider.id, durationMs: Date.now() - t0 });
-    } else {
-      throw new ApiError(502, result.code || 'GENERATION_FAILED', result.message || '上游生成失败');
+    /** 单次生成尝试：调适配器（含pending轮询）→ 质检门闩+抠底落盘 */
+    const runAttempt = async () => {
+      let result = await adapter.generate(
+        { prompt: job.prompt, size: (input && input.size) || settings.size || '1024x1024', referenceImage },
+        cfg
+      );
+
+      // 异步协议：pending → 记录remote_job_id并轮询（同步协议不会走到这里）
+      while (result.kind === 'pending') {
+        if (!adapter.poll) throw new ApiError(502, 'GENERATION_FAILED', '该适配器不支持异步任务轮询');
+        if (Date.now() >= deadline) throw new ApiError(504, 'GENERATION_TIMEOUT', '生成超时（超过上游时限）');
+        db.prepare('UPDATE generation_jobs SET remote_job_id=? WHERE id=?').run(result.remoteJobId, jobId);
+        await sleep(2000);
+        result = await adapter.poll(result.remoteJobId, cfg);
+      }
+
+      if (result.kind === 'completed') {
+        await completeJob(jobId, result.imageBytes, result.mimeType);
+        log('info', '生成任务成功', { jobId, providerId: provider.id, durationMs: Date.now() - t0 });
+      } else {
+        throw new ApiError(502, result.code || 'GENERATION_FAILED', result.message || '上游生成失败');
+      }
+    };
+
+    // 质检门闩失败自动重试（settings.retryOnGateFail 显式开启才生效，最多1次；
+    // 模型偶发语义漂移属正常损耗，免费模型建议开启以平滑演示体验）。
+    // 重试同样计入每日配额（成本护栏口径不变）。
+    const maxGateRetry = settings.retryOnGateFail === true ? 1 : 0;
+    let gateRetried = 0;
+    for (;;) {
+      try {
+        await runAttempt();
+        break;
+      } catch (e) {
+        if (e instanceof ApiError && e.gateFail && gateRetried < maxGateRetry) {
+          gateRetried++;
+          quota.recordUsage(provider.id);
+          log('warn', '质检门闩未过，自动重试一次', { jobId, attempt: gateRetried });
+          continue;
+        }
+        throw e;
+      }
     }
   } catch (e) {
     const err = e instanceof ApiError ? e : new ApiError(502, 'GENERATION_FAILED', sanitizeMessage(e && e.message, 200));

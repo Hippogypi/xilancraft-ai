@@ -76,6 +76,8 @@ function build() {
     GENERATED_DIR: path.join(dataDir, 'generated'),
     UPLOADS_DIR: path.join(dataDir, 'uploads'),
     DB_PATH: path.join(dataDir, 'xilankapu.db'),
+    // 纹样图生图底图（scripts/prepare-motif-bases.js 生成：<motifId>.png + manifest.json）
+    MOTIF_BASES_DIR: path.join(SERVER_ROOT, 'public', 'assets', 'motif-bases'),
 
     // 生成/限频常量（规格§8：超时120s、冷却3s、默认每日上限50）
     GENERATION_TIMEOUT_MS: toInt(process.env.GENERATION_TIMEOUT_MS, 120 * 1000),

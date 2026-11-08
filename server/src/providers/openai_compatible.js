@@ -1,14 +1,17 @@
 /**
- * openai_compatible 适配器 —— 智谱 CogView 生图协议（契约§6）
+ * openai_compatible 适配器 —— 智谱 CogView / 硅基流动 Kolors 生图协议（契约§6）
  *
- * 协议已核实（官方文档 https://docs.bigmodel.cn/api-reference/模型-api/图像生成）：
- * - 端点：POST {base_url}/images/generations，默认 base_url = https://open.bigmodel.cn/api/paas/v4
- * - 鉴权：Authorization: Bearer <API Key>
- * - 请求体：{ model(必填: cogview-3-flash/cogview-4/cogview-4-250304/glm-image...), prompt(必填),
- *            size(可选, cogview系默认1024x1024, 枚举 768x1344/864x1152/1344x768/1152x864/1440x720/720x1440) }
- * - 响应：同步 { created, data:[{url}] }，data 仅一张图，url 为30天有效临时链接 → 需下载落盘
- * - 错误：{ error: { code, message } }
- * - cogview-3-flash 免费；cogview-4 付费（管理端慎用）
+ * 协议已核实：
+ * - 文生图端点：POST {base_url}/images/generations
+ *   - 智谱（https://docs.bigmodel.cn/api-reference/模型-api/图像生成）：
+ *     请求体 { model(cogview-3-flash/cogview-4/...), prompt, size }，响应 { data:[{url}] }
+ *   - 硅基流动（https://docs.siliconflow.cn/cn/userguide/capabilities/images）：
+ *     请求体 { model(Kwai-Kolors/Kolors 等), prompt, image_size, ... }，
+ *     响应 { images:[{url|b64_json}] }，默认加"AI生成"水印 → 传 X-Enable-Watermark:0 关闭
+ * - 图生图端点（本适配器自动分支）：任务携带参考图时 POST {base_url}/images/edits
+ *   （硅基流动 Kolors 支持：image 传 base64，strength 控制与原图的差异程度 0~1）
+ * - 鉴权：Authorization: Bearer <API Key>；错误：{ error:{code,message} }
+ * - cogview-3-flash / Kwai-Kolors 免费；cogview-4 付费（管理端慎用）
  */
 'use strict';
 
@@ -68,31 +71,45 @@ const openaiCompatibleAdapter = {
 
   /**
    * 同步生图协议：直接返回 {kind:'completed'}，无 poll。
-   * @param {{prompt:string,size?:string}} input
+   * 参考图（图生图）：input.referenceImage 为 Buffer 时自动切换到 /images/edits 端点
+   * （硅基流动 Kolors 等支持；智谱 CogView 无此端点，上游会报错——调用方已按
+   *  baseUrl 预判跳过图生图，此处不再重复判断，保留错误如实上抛）。
+   * @param {{prompt:string,size?:string,referenceImage?:Buffer}} input
    * @param {{baseUrl:string,modelId:string,apiKey:string,settings:object,timeoutMs:number}} cfg
    */
   async generate(input, cfg) {
     // 请求前再次SSRF校验（防保存后DNS被改指向内网）
     await assertPublicHttpUrl(cfg.baseUrl, 'Base URL');
-    const url = String(cfg.baseUrl).replace(/\/+$/, '') + '/images/generations';
+    const base = String(cfg.baseUrl).replace(/\/+$/, '');
+    const isBigmodel = /bigmodel\.cn/i.test(base);
+    const isSiliconflow = /siliconflow\.(cn|com)/i.test(base);
+    const hasRef = Buffer.isBuffer(input.referenceImage) && input.referenceImage.length > 0;
+    const url = base + (hasRef ? '/images/edits' : '/images/generations');
     const timeoutMs = cfg.timeoutMs || DEFAULT_TIMEOUT_MS;
 
     const body = { model: cfg.modelId, prompt: input.prompt };
-    // size 仅智谱 CogView 系使用（其他平台可能对额外字段严格校验，如硅基流动用 image_size）
-    const isBigmodel = /bigmodel\.cn/i.test(String(cfg.baseUrl));
-    if (isBigmodel && input.size && /^\d{2,5}x\d{2,5}$/.test(String(input.size))) body.size = String(input.size);
+    if (hasRef) {
+      // 图生图：底图 base64 + 重构强度（settings.strength 可配，默认 0.55）
+      body.image = input.referenceImage.toString('base64');
+      const s = Number(cfg.settings && cfg.settings.strength);
+      body.strength = Number.isFinite(s) && s >= 0.05 && s <= 0.95 ? s : 0.55;
+    }
+    // 尺寸字段名各平台不同：智谱 cogview 系用 size；硅基流动用 image_size（t2i/edits 通用）
+    const sizeOk = input.size && /^\d{2,5}x\d{2,5}$/.test(String(input.size));
+    if (sizeOk && isBigmodel) body.size = String(input.size);
+    if (sizeOk && isSiliconflow) body.image_size = String(input.size);
+
+    const headers = {
+      // 安全红线：密钥只出现在此请求头，绝不入日志/错误信息
+      Authorization: `Bearer ${cfg.apiKey}`,
+      'Content-Type': 'application/json',
+    };
+    // 硅基流动默认给生图结果加"AI生成"水印；服装贴图用途必须关闭
+    if (isSiliconflow) headers['X-Enable-Watermark'] = '0';
 
     const resp = await fetchWithTimeout(
       url,
-      {
-        method: 'POST',
-        headers: {
-          // 安全红线：密钥只出现在此请求头，绝不入日志/错误信息
-          Authorization: `Bearer ${cfg.apiKey}`,
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(body),
-      },
+      { method: 'POST', headers, body: JSON.stringify(body) },
       timeoutMs,
       '无法连接生图服务'
     );
