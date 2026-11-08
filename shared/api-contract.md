@@ -141,7 +141,8 @@ interface ImageProviderAdapter {
 }
 ```
 
-- `openai_compatible`：目标智谱 `https://open.bigmodel.cn/api/paas/v4`，POST `/images/generations`，Bearer Key，body `{model, prompt}`（cogview-3-flash 免费；cogview-4 支持 size）。同步返回 `{data:[{url}]}` → 下载落盘。**实现前先以官方文档核实协议字段。**
+- `openai_compatible`：目标智谱 `https://open.bigmodel.cn/api/paas/v4`，POST `/images/generations`，Bearer Key，body `{model, prompt}`（cogview-3-flash 免费；cogview-4 付费约0.06元/张，支持 size）。同步返回 `{data:[{url}]}` → 下载落盘。**实现前先以官方文档核实协议字段。**
+- **自动抠底（后处理）**：生成图落盘前，服务端用 sharp 边缘泛洪把"纯色背景图案稿"抠成透明 PNG（提示词模板已强制纯白背景）；抠除比例 <2% 或 >85% 时自动放弃保留原图，并另存 `<jobId>.src.<ext>` 原图快照。对上层接口透明——`imageUrl` 语义不变。
 - `mock`：程序化生成一张西兰卡普风格几何 PNG（纯 Node zlib 编码，无外部依赖），立即完成，供开发联调。
 - SSRF 防护：仅 http/https；解析后拒绝私网/环回/链路本地地址（127/8、10/8、172.16/12、192.168/16、169.254/16、::1）。
 - 成本护栏：单任务不自动重试；每 Provider 可设 `settings_json.dailyLimit`（默认 50）与全局冷却 3s。

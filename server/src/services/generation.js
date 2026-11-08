@@ -14,6 +14,7 @@ const { ApiError } = require('../utils/respond');
 const { newId } = require('../utils/crypto');
 const { sanitizeMessage, log } = require('../utils/logger');
 const { getAdapter } = require('../providers');
+const { removeSolidBackground } = require('../utils/bg-remove');
 const quota = require('./quota');
 const { getActiveProviderRow, getProviderRow, buildProviderConfig, parseSettings } = require('./providerService');
 
@@ -22,7 +23,7 @@ const MIME_EXT = { 'image/png': 'png', 'image/jpeg': 'jpg', 'image/webp': 'webp'
 
 /** 固定测试提示词（契约§4：test端点用1条固定测试提示词真实生成） */
 const TEST_PROMPT =
-  '西兰卡普织锦风格测试图：黑底红黄配色，菱形几何骨架与锯齿纹组合，扁平服装印花图案，主体完整，背景简洁';
+  '西兰卡普织锦风格测试图：纯白色背景，红黄黑配色，菱形几何骨架与锯齿纹组合的扁平服装印花图案，主体完整居中';
 
 function imageUrlFor(filename) {
   return filename ? `/api/images/generated/${path.basename(filename)}` : null;
@@ -112,8 +113,31 @@ async function submitGeneration(body) {
   return { jobId: id, status: 'queued' };
 }
 
-/** 内部：落盘结果图并更新任务为succeeded */
-function completeJob(jobId, imageBytes, mimeType) {
+/** 内部：尝试自动抠底（纯色背景→透明PNG）；不适合或失败时返回null保原样 */
+async function autoMatting(imageBytes) {
+  try {
+    const r = await removeSolidBackground(imageBytes);
+    if (r) {
+      log('info', '生成图自动抠底', { ratio: Number(r.ratio.toFixed(3)) });
+      return { buffer: r.buffer, mimeType: 'image/png' };
+    }
+    log('info', '生成图跳过抠底（背景不纯或主体同色）', {});
+  } catch (e) {
+    log('warn', '自动抠底异常，保留原背景', { err: sanitizeMessage(e && e.message, 120) });
+  }
+  return null;
+}
+
+/** 内部：落盘结果图（含自动抠底；保留.src原图快照供比对）并更新任务为succeeded */
+async function completeJob(jobId, imageBytes, mimeType) {
+  try {
+    fs.writeFileSync(path.join(config.GENERATED_DIR, `${jobId}.src.${MIME_EXT[mimeType] || 'png'}`), imageBytes);
+  } catch (e) { /* 快照失败不影响主流程 */ }
+  const matted = await autoMatting(imageBytes);
+  if (matted) {
+    imageBytes = matted.buffer;
+    mimeType = matted.mimeType;
+  }
   const ext = MIME_EXT[mimeType] || 'png';
   const filename = `${jobId}.${ext}`;
   fs.writeFileSync(path.join(config.GENERATED_DIR, filename), imageBytes);
@@ -161,7 +185,7 @@ async function processJob(jobId, input) {
     }
 
     if (result.kind === 'completed') {
-      completeJob(jobId, result.imageBytes, result.mimeType);
+      await completeJob(jobId, result.imageBytes, result.mimeType);
       log('info', '生成任务成功', { jobId, providerId: provider.id, durationMs: Date.now() - t0 });
     } else {
       throw new ApiError(502, result.code || 'GENERATION_FAILED', result.message || '上游生成失败');
@@ -237,9 +261,17 @@ async function runProviderTest(providerRow) {
     const result = await adapter.generate({ prompt: TEST_PROMPT, size: settings.size || '1024x1024' }, cfg);
     if (result.kind !== 'completed') throw new ApiError(502, 'GENERATION_FAILED', '异步任务测试暂不支持');
     quota.recordUsage(providerRow.id);
-    const ext = MIME_EXT[result.mimeType] || 'png';
+    // 测试生成同样走自动抠底（与服务端用户生成流程一致）
+    let testBytes = result.imageBytes;
+    let testMime = result.mimeType;
+    const matted = await autoMatting(result.imageBytes);
+    if (matted) {
+      testBytes = matted.buffer;
+      testMime = matted.mimeType;
+    }
+    const ext = MIME_EXT[testMime] || 'png';
     const filename = `test-${providerRow.id}-${Date.now()}.${ext}`;
-    fs.writeFileSync(path.join(config.GENERATED_DIR, filename), result.imageBytes);
+    fs.writeFileSync(path.join(config.GENERATED_DIR, filename), testBytes);
     getDb()
       .prepare('UPDATE providers SET last_test_status=?, last_test_at=?, updated_at=? WHERE id=?')
       .run('success', new Date().toISOString(), new Date().toISOString(), providerRow.id);

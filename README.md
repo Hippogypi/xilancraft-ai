@@ -10,10 +10,11 @@
 微信原生小程序（用户端4Tab + 隐藏管理端）
   │ HTTP (127.0.0.1:3000)
   ▼
-Node.js 22 + Express（server/）
+Node.js 22 + Express（server/，依赖仅 express + sharp）
   ├─ 管理员鉴权（Bearer会话/登录限试/密码哈希）
   ├─ Provider 配置中心（密钥AES-256-GCM加密，热切换）
   ├─ AI 任务编排 + 适配层（openai_compatible=智谱CogView / mock）
+  ├─ 生成图自动抠底（sharp边缘泛洪，纯白背景图案稿→透明PNG，同步保留 .src 原图快照）
   ├─ SQLite（node:sqlite，零依赖）：providers / generation_jobs / orders
   ├─ 生成图片落盘 data/generated/（重启不丢）
   └─ 静态资源 /api/assets/（织机MP4等，不占小程序包体）
@@ -45,10 +46,12 @@ npm start                       # 或 node src/index.js
 
 1. 管理端登录 → 「AI 接口配置」→ 新增配置：
    - 类型 `openai_compatible`；Base URL `https://open.bigmodel.cn/api/paas/v4`
-   - 模型 ID `cogview-3-flash`（**免费**；`cogview-4` 效果更好但付费，慎用）
+   - 模型 ID `cogview-3-flash`（**免费**）或 `cogview-4`（**约 0.06 元/张，效果更好**，需账户有余额，充 10 元可生成约 160 张）
    - API Key：[open.bigmodel.cn](https://open.bigmodel.cn) 的密钥（仅加密存于服务端 SQLite，接口只回 `hasApiKey`）
 2. 「测试生成」→ 出图且耗时正常 → 「激活」
 3. 用户端任意新提示词即真实生图；额度耗尽（429）时管理端可即时切换其他配置，**无需改前端代码**
+
+**透明底机制**：文生图模型均不输出透明通道。本项目的方案：提示词模板强制「纯白色背景的扁平图案稿」→ 服务端在落盘前用 sharp 边缘泛洪算法自动抠除背景输出透明 PNG（仅抠与边缘连通的背景色区域，主体内部同色不误伤；抠除比例异常时自动放弃保原图，另存 `.src` 原图快照供比对）。
 
 ## 目录
 
