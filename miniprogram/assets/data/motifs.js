@@ -6,7 +6,7 @@ module.exports = [
   {
     "id": "motif-48gou-001",
     "name": "四十八勾",
-    "patternCore": "菱形核心加四周直角折线勾连",
+    "patternCore": "同心菱形嵌套，四边折线对称勾连",
     "patternDesc": "以中心单菱形为核，勾状直角折线单元沿菱形四边层层向外放射勾连（八勾→十二勾→二十四勾→四十八勾递进），勾头回钩相扣，菱形骨架环环嵌套，呈向心对称的放射结构",
     "category": "traditional",
     "image": "/assets/motifs/motif-48gou.jpg",
@@ -23,7 +23,7 @@ module.exports = [
   {
     "id": "motif-yangque-001",
     "name": "阳雀花",
-    "patternCore": "直线三角拼出的阳雀鸟形，昂首展翅翘尾",
+    "patternCore": "左右相向的阶梯轮廓，夹持中央菱形链，平行色带贯穿",
     "patternDesc": "几何化的阳雀（杜鹃鸟）居中，昂首、展翅、翘尾的侧面轮廓以直线与三角构成，常作左右双鸟相向对称布局，外围环绕菱形花枝框架",
     "category": "traditional",
     "image": "/assets/motifs/motif-yangquehua.jpg",
@@ -40,7 +40,7 @@ module.exports = [
   {
     "id": "motif-taitai-001",
     "name": "台台花",
-    "patternCore": "几何虎头，竖耳圆目、方正块面",
+    "patternCore": "方正外框内：双立块居上、横条带居中的对称块面",
     "patternDesc": "极度几何化的虎头（双耳竖立、圆目、额间纹）与船形横条组合成菱形块面，多个菱形作连续排布，轮廓方正、块面对比强烈",
     "category": "traditional",
     "image": "/assets/motifs/motif-taitaihua.jpg",
@@ -57,7 +57,7 @@ module.exports = [
   {
     "id": "motif-mabi-001",
     "name": "马毕（马匹纹）",
-    "patternCore": "侧面马形：矩形躯干、锯齿鬃尾",
+    "patternCore": "矩形躯干与锯齿背线的侧面轮廓组合，四腿为方正立柱",
     "patternDesc": "正侧面马形轮廓几何化：四腿方正、躯干为矩形、鬃毛与尾部呈锯齿三角，同一图形中并存正面双眼与侧面身姿的多维视角",
     "category": "traditional",
     "image": "/assets/motifs/motif-mabi.jpg",
@@ -91,7 +91,7 @@ module.exports = [
   {
     "id": "motif-fengmudan-001",
     "name": "凤穿牡丹",
-    "patternCore": "展翅凤鸟环绕花卉的徽章式构图",
+    "patternCore": "中轴辐射徽章：中心块面四周环绕卷曲条带与菱形点缀",
     "patternDesc": "凤鸟展翅穿行于牡丹花丛之间，花鸟呈中心环抱对称布局，卷曲的枝叶藤蔓以S形曲线填满间隙，画面绵密华丽",
     "category": "traditional",
     "image": "/assets/motifs/motif-fengmudan.jpg",
@@ -125,7 +125,7 @@ module.exports = [
   {
     "id": "motif-yangque-002",
     "name": "阳雀·折纸几何",
-    "patternCore": "折纸三角色块拼出的鸟形动势",
+    "patternCore": "相向三角块与斜切条带的对称拼合",
     "patternDesc": "以折纸式三角色块与锐利切线拼出阳雀昂首展翅翘尾的动势轮廓，形面简洁、负空间清晰",
     "category": "modern",
     "image": "",
@@ -142,7 +142,7 @@ module.exports = [
   {
     "id": "motif-she-002",
     "name": "蛇花·回旋单线",
-    "patternCore": "一根连续单线勾出的回旋环",
+    "patternCore": "一根连续粗线勾出的回旋环形",
     "patternDesc": "一根连续单线勾勒小蛇首尾相接的回旋环，二方连续延展、环环相扣，线宽均匀、留白疏朗",
     "category": "modern",
     "image": "",
@@ -159,7 +159,7 @@ module.exports = [
   {
     "id": "motif-yanqiang-002",
     "name": "岩墙·砌块渐变",
-    "patternCore": "大小渐变方块的嵌叠组合",
+    "patternCore": "大小递变的方形色块嵌叠",
     "patternDesc": "大小渐变的色块矩阵如砌石般条垒咬合，保留横向条带节奏并叠加明度渐变，形成立体砌面肌理",
     "category": "modern",
     "image": "",
