@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/splash/index",
     "pages/heritage/index",
     "pages/inspiration/index",
     "pages/workshop/index",

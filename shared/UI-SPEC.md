@@ -50,6 +50,7 @@ tabBar 样式：黑底金字，selectedColor `--xl-gold`，color `--xl-text-sub`
 
 ### 非 tab 页面
 
+- pages/splash（开屏品牌动画，**app.json 首页**）：米白底 #F7F2E8 × 深红 #8E2A35 × 靛蓝 #3A5A8C；纯 CSS 四阶段（0-0.7s 纹样错落浮现 → 0.7-1.4s 几何聚合为对称图腾 → 1.4-2.2s 标题模糊转清晰 → 2.2-3s 入口按钮上浮）；会话级防重播（globalData.splashShown）、右上角跳过、300ms 淡出进入非遗导览；深色系页面之外的独立浅色开屏视觉
 - pages/admin/login（管理员登录）
 - pages/admin/home（管理首页：API 配置/生成记录/订单管理三入口 + P2 统计卡）
 - pages/admin/providers（列表）/ pages/admin/providers-edit（新增/编辑，query 带 id）

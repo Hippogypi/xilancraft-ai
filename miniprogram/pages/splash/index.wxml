@@ -1,0 +1,38 @@
+<!-- 开屏：米白底 × 深红/靛蓝点缀，非遗文化 × 现代极简（纯CSS几何，无图片素材） -->
+<view class="splash {{leaving ? 'splash--out' : ''}}">
+  <!-- 跳过入口（支持跳过动画） -->
+  <view class="skip" hover-class="skip--hover" bindtap="finish">跳过</view>
+
+  <view class="stage">
+    <!-- 纹样图腾区：各元素最终位=对称菱形图腾；--sx/--sy 为散布起点偏移，--d 为错落延迟 -->
+    <view class="emblem">
+      <!-- 两侧装饰细线（平置类） -->
+      <view class="geo geo--f geo--line geo--line-l" style="--sx:-320rpx;--d:.24s"></view>
+      <view class="geo geo--f geo--line geo--line-r" style="--sx:320rpx;--d:.24s"></view>
+      <!-- 四角勾纹（平置类，勾形朝内） -->
+      <view class="geo geo--f geo--corner geo--corner-tl" style="--sx:-190rpx;--sy:-190rpx;--d:.2s"></view>
+      <view class="geo geo--f geo--corner geo--corner-tr" style="--sx:190rpx;--sy:-190rpx;--d:.2s"></view>
+      <view class="geo geo--f geo--corner geo--corner-bl" style="--sx:-190rpx;--sy:190rpx;--d:.22s"></view>
+      <view class="geo geo--f geo--corner geo--corner-br" style="--sx:190rpx;--sy:190rpx;--d:.22s"></view>
+      <!-- 上下左右四个小菱形（菱形类，带自旋聚合） -->
+      <view class="geo geo--d geo--side geo--side-t" style="--sy:-280rpx;--sr:200deg;--d:.1s"></view>
+      <view class="geo geo--d geo--side geo--side-b" style="--sy:280rpx;--sr:-200deg;--d:.1s"></view>
+      <view class="geo geo--d geo--side geo--side-l" style="--sx:-280rpx;--sr:180deg;--d:.14s"></view>
+      <view class="geo geo--d geo--side geo--side-r" style="--sx:280rpx;--sr:-180deg;--d:.14s"></view>
+      <!-- 中央主菱形（菱形类，从下方旋入） -->
+      <view class="geo geo--d geo--core" style="--sy:170rpx;--sr:-90deg;--d:0s">
+        <view class="geo--core__inner"></view>
+      </view>
+    </view>
+
+    <!-- 品牌标题组：模糊转清晰 + 轻微上浮，依次渐显 -->
+    <view class="title t1">西兰卡普</view>
+    <view class="title t2">AI 服装定制工坊</view>
+    <view class="title t3">让传统纹样，织入未来设计</view>
+  </view>
+
+  <!-- 入口按钮（淡入 + 上浮，动画结束后停留在开屏画面等待点击） -->
+  <view class="cta-wrap">
+    <view class="cta" hover-class="cta--hover" bindtap="finish">开启共创 →</view>
+  </view>
+</view>

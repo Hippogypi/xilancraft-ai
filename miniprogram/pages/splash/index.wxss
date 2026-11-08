@@ -1,0 +1,231 @@
+/**
+ * 开屏动画样式 —— 米白底 #F7F2E8；深红 #8E2A35；靛蓝 #3A5A8C；墨色 #2B2622；米灰 #8A7F6E
+ * 时间轴：geoIn 0→1.4s（浮现+聚合）；标题 riseIn 1.45/1.75/2.0s；按钮 ctaIn 2.25s
+ */
+.splash {
+  position: fixed;
+  left: 0; top: 0; right: 0; bottom: 0;
+  background: #F7F2E8;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  transition: opacity 0.3s ease; /* 点击后的 300ms 淡出过渡 */
+}
+.splash--out {
+  opacity: 0;
+  pointer-events: none;
+}
+
+/* ---------- 跳过 ---------- */
+.skip {
+  position: absolute;
+  top: calc(64rpx + env(safe-area-inset-top));
+  right: 44rpx;
+  font-size: 26rpx;
+  color: #8A7F6E;
+  padding: 10rpx 22rpx;
+  border-radius: 999rpx;
+  opacity: 0;
+  animation: fadeIn 0.5s ease 0.6s forwards;
+}
+.skip--hover {
+  background: rgba(138, 127, 110, 0.12);
+}
+
+/* ---------- 图腾区 ---------- */
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+.emblem {
+  position: relative;
+  width: 480rpx;
+  height: 480rpx;
+  margin-bottom: 56rpx;
+}
+
+/* 元素基类：初始不可见，动画 forwards 停在聚合完成位
+   --sx/--sy 散布起点偏移；--sr 额外自旋；--d 错落延迟 */
+.geo {
+  position: absolute;
+  opacity: 0;
+  animation-duration: 1.4s;
+  animation-timing-function: cubic-bezier(0.45, 0.05, 0.25, 1); /* 织锦般柔和的 ease-in-out */
+  animation-fill-mode: forwards;
+  animation-delay: var(--d, 0s);
+  will-change: transform, opacity;
+}
+/* 菱形类：最终态 rotate(45deg)（正方形转成菱形） */
+.geo--d { animation-name: geoInDiamond; }
+/* 平置类（角勾/细线）：最终态不旋转 */
+.geo--f { animation-name: geoInFlat; }
+
+/* 0%→38%：散布位淡入浮现（带轻微缩放呼吸）；38%→100%：向最终位聚合并归正自旋 */
+@keyframes geoInDiamond {
+  0% {
+    opacity: 0;
+    transform: translate(var(--sx, 0rpx), var(--sy, 0rpx)) rotate(calc(45deg + var(--sr, 0deg))) scale(0.5);
+  }
+  38% {
+    opacity: 1;
+    transform: translate(var(--sx, 0rpx), var(--sy, 0rpx)) rotate(calc(45deg + var(--sr, 0deg))) scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(45deg) scale(1);
+  }
+}
+@keyframes geoInFlat {
+  0% {
+    opacity: 0;
+    transform: translate(var(--sx, 0rpx), var(--sy, 0rpx)) rotate(var(--sr, 0deg)) scale(0.5);
+  }
+  38% {
+    opacity: 1;
+    transform: translate(var(--sx, 0rpx), var(--sy, 0rpx)) rotate(var(--sr, 0deg)) scale(1);
+  }
+  100% {
+    opacity: 1;
+    transform: translate(0, 0) rotate(0deg) scale(1);
+  }
+}
+
+/* 中央主菱形：深红描边 + 内嵌靛蓝菱形（菱中菱，四十八勾意象） */
+.geo--core {
+  left: 50%;
+  top: 50%;
+  width: 190rpx;
+  height: 190rpx;
+  margin: -95rpx 0 0 -95rpx; /* 居中（不用 transform，transform 让位给动画） */
+  border: 6rpx solid #8E2A35;
+  border-radius: 8rpx;
+  box-sizing: border-box;
+  background: rgba(142, 42, 53, 0.05);
+}
+.geo--core__inner {
+  position: absolute;
+  left: 22rpx; top: 22rpx; right: 22rpx; bottom: 22rpx;
+  border: 4rpx solid #3A5A8C;
+  border-radius: 6rpx;
+  opacity: 0.85;
+}
+
+/* 四方小菱形：上/下深红，左/右靛蓝，环抱主菱形 */
+.geo--side {
+  width: 42rpx;
+  height: 42rpx;
+  border-radius: 4rpx;
+}
+.geo--side-t { left: 50%; top: 60rpx; margin-left: -21rpx; background: #8E2A35; }
+.geo--side-b { left: 50%; bottom: 60rpx; margin-left: -21rpx; background: #8E2A35; }
+.geo--side-l { top: 50%; left: 60rpx; margin-top: -21rpx; background: #3A5A8C; }
+.geo--side-r { top: 50%; right: 60rpx; margin-top: -21rpx; background: #3A5A8C; }
+
+/* 四角勾纹：L 形细线勾（两边 border），朝向中心 */
+.geo--corner {
+  width: 46rpx;
+  height: 46rpx;
+  border-color: rgba(142, 42, 53, 0.55);
+  border-style: solid;
+  border-width: 0;
+}
+.geo--corner-tl { left: 6rpx; top: 6rpx; border-left-width: 4rpx; border-top-width: 4rpx; }
+.geo--corner-tr { right: 6rpx; top: 6rpx; border-right-width: 4rpx; border-top-width: 4rpx; }
+.geo--corner-bl { left: 6rpx; bottom: 6rpx; border-left-width: 4rpx; border-bottom-width: 4rpx; }
+.geo--corner-br { right: 6rpx; bottom: 6rpx; border-right-width: 4rpx; border-bottom-width: 4rpx; }
+
+/* 两侧装饰细线：向外渐隐 */
+.geo--line {
+  top: 50%;
+  width: 120rpx;
+  height: 3rpx;
+  margin-top: -1.5rpx;
+}
+.geo--line-l {
+  left: -140rpx;
+  background: linear-gradient(90deg, transparent, rgba(142, 42, 53, 0.6));
+}
+.geo--line-r {
+  right: -140rpx;
+  background: linear-gradient(90deg, rgba(142, 42, 53, 0.6), transparent);
+}
+
+/* ---------- 品牌标题组：模糊转清晰 + 上浮 ---------- */
+.title {
+  text-align: center;
+  opacity: 0;
+  animation: riseIn 0.8s ease-out forwards;
+}
+.t1 {
+  font-size: 76rpx;
+  font-weight: 700;
+  color: #8E2A35;
+  letter-spacing: 10rpx;
+  animation-delay: 1.45s;
+}
+.t2 {
+  font-size: 30rpx;
+  color: #3A5A8C;
+  letter-spacing: 8rpx;
+  margin-top: 20rpx;
+  animation-delay: 1.75s;
+}
+.t3 {
+  font-size: 24rpx;
+  color: #8A7F6E;
+  letter-spacing: 4rpx;
+  margin-top: 30rpx;
+  animation-delay: 2s;
+}
+@keyframes riseIn {
+  from {
+    opacity: 0;
+    transform: translateY(18rpx);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+    filter: blur(0);
+  }
+}
+
+/* ---------- 入口按钮：细线边框 + 圆角，淡入上浮 ---------- */
+.cta-wrap {
+  position: absolute;
+  left: 0; right: 0;
+  bottom: calc(120rpx + env(safe-area-inset-bottom));
+  display: flex;
+  justify-content: center;
+}
+.cta {
+  opacity: 0;
+  animation: ctaIn 0.6s ease-out 2.25s forwards;
+  border: 2rpx solid #8E2A35;
+  border-radius: 999rpx;
+  color: #8E2A35;
+  font-size: 30rpx;
+  letter-spacing: 4rpx;
+  padding: 22rpx 78rpx;
+  background: rgba(142, 42, 53, 0.04);
+}
+.cta--hover {
+  background: rgba(142, 42, 53, 0.12);
+}
+@keyframes ctaIn {
+  from {
+    opacity: 0;
+    transform: translateY(16rpx);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}

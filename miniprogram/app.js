@@ -17,7 +17,9 @@ App({
      * - pendingPattern：工坊页 → 定制页（生成结果：{ jobId, imageUrl, prompt }）
      */
     pendingMotif: null,
-    pendingPattern: null
+    pendingPattern: null,
+    /** 开屏动画本会话是否已播放（冷启动重置 → 每次使用只播一次） */
+    splashShown: false
   },
   onLaunch() {
     // 阶段2底座：暂无启动期请求；阶段3可在此做 /api/health 预检
