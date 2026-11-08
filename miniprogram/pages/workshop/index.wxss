@@ -222,3 +222,190 @@
   margin-top: 16rpx;
   text-align: center;
 }
+
+/* ==================== 可视化配色（主色/辅助色 + 快捷色板 + 自由调色） ==================== */
+/* 主色/辅助色并排卡片：选中态金色高亮描边 + 右上角勾 */
+.cp-cards {
+  display: flex;
+  gap: 20rpx;
+}
+.cp-card {
+  position: relative;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  border-radius: 16rpx;
+  border: 2rpx solid var(--xl-gold-40);
+  background: var(--xl-bg-card-2);
+  box-sizing: border-box;
+  transition: border-color 0.2s ease, background 0.2s ease;
+}
+.cp-card--on {
+  border-color: var(--xl-gold);
+  background: rgba(201, 160, 99, 0.08);
+}
+.cp-card--off {
+  border-style: dashed;
+  opacity: 0.75;
+}
+.cp-card__swatch {
+  width: 76rpx;
+  height: 76rpx;
+  border-radius: 14rpx;
+  border: 2rpx solid rgba(245, 237, 222, 0.25);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cp-card__swatch--empty {
+  border-style: dashed;
+  background: transparent;
+}
+.cp-card__plus {
+  font-size: 40rpx;
+  color: var(--xl-text-sub);
+}
+.cp-card__meta {
+  flex: 1;
+  min-width: 0;
+  margin-left: 18rpx;
+  display: flex;
+  flex-direction: column;
+}
+.cp-card__label {
+  font-size: 22rpx;
+  color: var(--xl-text-faint);
+}
+.cp-card__name {
+  font-size: 28rpx;
+  color: var(--xl-text);
+  margin-top: 6rpx;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+.cp-card__check {
+  position: absolute;
+  right: -10rpx;
+  top: -10rpx;
+  width: 36rpx;
+  height: 36rpx;
+  border-radius: 50%;
+  background: var(--xl-gold);
+  color: #16120E;
+  font-size: 22rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.cp-card__close {
+  position: absolute;
+  right: 10rpx;
+  top: 10rpx;
+  width: 40rpx;
+  height: 40rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24rpx;
+  color: var(--xl-text-faint);
+}
+
+/* 快捷色板：6 色一行网格，选中金色描边 + 勾 */
+.cp-swatches {
+  display: flex;
+  margin-top: 24rpx;
+  gap: 18rpx;
+}
+.cp-sw {
+  position: relative;
+  flex: 1;
+  height: 84rpx;
+  border-radius: 12rpx;
+  border: 3rpx solid transparent;
+  box-sizing: border-box;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.15s ease;
+}
+.cp-sw--on {
+  border-color: var(--xl-gold);
+  box-shadow: 0 0 0 2rpx rgba(201, 160, 99, 0.3);
+}
+.cp-sw__tick {
+  font-size: 30rpx;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 0 6rpx rgba(0, 0, 0, 0.6);
+  opacity: 0;
+  transition: opacity 0.15s ease;
+}
+.cp-sw--on .cp-sw__tick {
+  opacity: 1;
+}
+
+/* 自由调色折叠头 */
+.cp-custom-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24rpx;
+  padding: 18rpx 20rpx;
+  border-radius: 12rpx;
+  background: var(--xl-bg-card-2);
+}
+.cp-custom-head__text {
+  font-size: 26rpx;
+  color: var(--xl-text-sub);
+}
+.cp-custom-head__arrow {
+  font-size: 22rpx;
+  color: var(--xl-gold);
+}
+
+/* 自由调色面板：实时预览 + 三个 HSL 滑块 */
+.cp-custom {
+  margin-top: 16rpx;
+  padding: 20rpx;
+  border-radius: 12rpx;
+  background: var(--xl-bg-card-2);
+}
+.cp-live {
+  display: flex;
+  align-items: center;
+  margin-bottom: 20rpx;
+}
+.cp-live__swatch {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 12rpx;
+  border: 2rpx solid rgba(245, 237, 222, 0.25);
+}
+.cp-live__name {
+  margin-left: 20rpx;
+  font-size: 28rpx;
+  color: var(--xl-text);
+}
+.cp-slider {
+  display: flex;
+  align-items: center;
+  margin-top: 8rpx;
+}
+.cp-slider__name {
+  width: 110rpx;
+  font-size: 24rpx;
+  color: var(--xl-text-sub);
+  flex-shrink: 0;
+}
+.cp-slider__bar {
+  flex: 1;
+  margin: 0 8rpx;
+}
+.cp-hint {
+  display: block;
+  margin-top: 18rpx;
+  font-size: 22rpx;
+}

@@ -11,43 +11,89 @@
     <view class="ref-tag__close">✕</view>
   </view>
 
-  <!-- ① 提示词 textarea（200 字上限） -->
+  <!-- ① 提示词 textarea（200 字上限；服装风格/应用部位由用户自由描述，占位文案暗示） -->
   <xl-card title="创意提示词">
     <textarea
       class="prompt-input"
       value="{{prompt}}"
       maxlength="200"
       bindinput="onPromptInput"
-      placeholder="例：结合四十八勾的菱形骨架，几何重组为黑金配色的街头卫衣胸前印花，主体醒目"
+      placeholder="描述你的创意：如「街头潮流风、胸前印花，结合四十八勾的菱形骨架，几何重组，主体醒目」"
       placeholder-class="xl-ph"
     ></textarea>
     <view class="prompt-count">{{prompt.length}}/200</view>
   </xl-card>
 
-  <!-- ② 风格 chips -->
-  <xl-card title="服装风格">
-    <xl-chips options="{{styles}}" value="{{styleValue}}" bind:change="onStyleChange"></xl-chips>
-  </xl-card>
-
-  <!-- ③ 配色 chips（自定义附输入框） -->
+  <!-- ② 可视化配色：主色/辅助色卡片 + 快捷色板 + 可折叠自由调色 -->
   <xl-card title="配色方案">
-    <xl-chips options="{{palettes}}" value="{{paletteValue}}" bind:change="onPaletteChange"></xl-chips>
-    <view wx:if="{{paletteValue === 'custom'}}" class="custom-palette">
-      <input
-        class="xl-input custom-palette__input"
-        value="{{customPalette}}"
-        maxlength="12"
-        bindinput="onCustomPaletteInput"
-        placeholder="填写自定义配色，如：暖棕大地色"
-        placeholder-class="xl-ph"
-      />
-      <text class="xl-text-faint">留空时按「自由配色」提交</text>
+    <!-- 主色（必选）/ 辅助色（可选，双色模式开关） -->
+    <view class="cp-cards">
+      <view class="cp-card {{activeSlot === 'main' ? 'cp-card--on' : ''}}" bindtap="onSelectMain">
+        <view class="cp-card__swatch" style="background: {{mainHex}}"></view>
+        <view class="cp-card__meta">
+          <text class="cp-card__label">主色</text>
+          <text class="cp-card__name">{{mainName}}</text>
+        </view>
+        <view wx:if="{{activeSlot === 'main'}}" class="cp-card__check">✓</view>
+      </view>
+      <view
+        class="cp-card {{auxOn ? '' : 'cp-card--off'}} {{activeSlot === 'aux' ? 'cp-card--on' : ''}}"
+        bindtap="onSelectAux"
+      >
+        <view class="cp-card__swatch {{auxOn ? '' : 'cp-card__swatch--empty'}}" style="{{auxOn ? 'background: ' + auxHex : ''}}">
+          <text wx:if="{{!auxOn}}" class="cp-card__plus">＋</text>
+        </view>
+        <view class="cp-card__meta">
+          <text class="cp-card__label">辅助色</text>
+          <text class="cp-card__name">{{auxOn ? auxName : '点击启用双色'}}</text>
+        </view>
+        <view wx:if="{{activeSlot === 'aux'}}" class="cp-card__check">✓</view>
+        <view wx:if="{{auxOn}}" class="cp-card__close" catchtap="onDisableAux">✕</view>
+      </view>
     </view>
-  </xl-card>
 
-  <!-- ④ 应用部位 chips -->
-  <xl-card title="应用部位">
-    <xl-chips options="{{placements}}" value="{{placementValue}}" bind:change="onPlacementChange"></xl-chips>
+    <!-- 快捷色板：6 精选色块（传统织锦色 + 现代设计色） -->
+    <view class="cp-swatches">
+      <view
+        wx:for="{{swatches}}"
+        wx:key="hex"
+        class="cp-sw {{(activeSlot === 'main' && item.hex === mainHex) || (activeSlot === 'aux' && auxOn && item.hex === auxHex) ? 'cp-sw--on' : ''}}"
+        style="background: {{item.hex}}"
+        data-idx="{{index}}"
+        bindtap="onSwatchTap"
+      >
+        <text class="cp-sw__tick">✓</text>
+      </view>
+    </view>
+
+    <!-- 更多颜色 · 自由调色（默认折叠） -->
+    <view class="cp-custom-head" bindtap="onToggleCustom">
+      <text class="cp-custom-head__text">更多颜色 · 自由调色</text>
+      <text class="cp-custom-head__arrow">{{customOpen ? '▲' : '▼'}}</text>
+    </view>
+    <view wx:if="{{customOpen}}" class="cp-custom">
+      <view class="cp-live">
+        <view class="cp-live__swatch" style="background: {{liveHex}}"></view>
+        <text class="cp-live__name">{{liveName}}</text>
+      </view>
+      <view class="cp-slider">
+        <text class="cp-slider__name">色相</text>
+        <slider class="cp-slider__bar" min="0" max="360" step="1" value="{{h}}" activeColor="#C9A063" backgroundColor="#2E251B" block-size="20" block-color="#C9A063" bindchanging="onHueChange" bindchange="onHueChange" />
+      </view>
+      <view class="cp-slider">
+        <text class="cp-slider__name">饱和度</text>
+        <slider class="cp-slider__bar" min="0" max="100" step="1" value="{{s}}" activeColor="#C9A063" backgroundColor="#2E251B" block-size="20" block-color="#C9A063" bindchanging="onSatChange" bindchange="onSatChange" />
+      </view>
+      <view class="cp-slider">
+        <text class="cp-slider__name">明度</text>
+        <slider class="cp-slider__bar" min="8" max="92" step="1" value="{{l}}" activeColor="#C9A063" backgroundColor="#2E251B" block-size="20" block-color="#C9A063" bindchanging="onLightChange" bindchange="onLightChange" />
+      </view>
+      <view class="xl-actions">
+        <xl-button type="primary" text="使用这个颜色" bind:tap="onUseLiveColor"></xl-button>
+      </view>
+    </view>
+
+    <text class="xl-text-faint cp-hint">{{auxOn ? '双色模式：主色为主、辅助色点缀' : '单色模式：可用黑白中性色辅助构图'}}</text>
   </xl-card>
 
   <!-- ⑤ 参考纹样横滑条（来自素材库带入或本页选择） -->

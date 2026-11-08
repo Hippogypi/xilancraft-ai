@@ -1,8 +1,8 @@
 /**
  * pages/workshop —— AI 定制工坊（WBS 04 P0）
- * 表单：提示词 / 风格 / 配色（含自定义）/ 应用部位 / 参考纹样（素材库带入可移除）
- * 生成链路：utils/prompt-builder.js 按冻结模板组装完整提示词
- *   → POST /api/generations { mode:'text_to_image', prompt, style, size:'1024x1024', referenceMotifId? }
+ * 表单：提示词（自由描述风格/部位/创意）/ 可视化配色（主色+可选辅色，快捷色板+HSL自由调色）/ 参考纹样
+ * 生成链路：utils/prompt-builder.js v3 组装完整提示词（颜色以中文色名注入）
+ *   → POST /api/generations { mode:'text_to_image', prompt, size:'1024x1024', referenceMotifId? }
  *   → setTimeout 链轮询 GET /api/generations/:id（间隔 2s、最长 150s）
  * 状态：idle / running / succeeded / failed（前端超时、额度不足等与失败同态，
  *   文案直接用 services/api.js 的契约错误码中文映射 friendlyMessage）
@@ -10,6 +10,7 @@
 const api = require('../../services/api.js');
 const promptBuilder = require('../../utils/prompt-builder.js');
 const urlUtil = require('../../utils/url.js');
+const colorUtil = require('../../utils/color.js');
 
 const POLL_INTERVAL_MS = 2000;   // 契约：轮询间隔 2s
 const POLL_MAX_MS = 150000;      // 契约：前端轮询最长 150s（后端默认 120s 超时）
@@ -35,30 +36,31 @@ function parseKeywords(raw) {
   return text.split(/[,，、\s]+/).filter(function (k) { return k; });
 }
 
+/** 快捷色板：织锦传统色 + 现代服装设计色（各带中文色名，注入提示词） */
+const QUICK_SWATCHES = [
+  { name: '织锦红', hex: '#a62b2b' },
+  { name: '靛蓝', hex: '#3a5a8c' },
+  { name: '明黄', hex: '#d9a62e' },
+  { name: '翠绿', hex: '#3e8e5a' },
+  { name: '玄黑', hex: '#26211d' },
+  { name: '月白', hex: '#e8e0ce' }
+];
+
 Page({
   data: {
     prompt: '',
-    styles: [
-      { label: '街头潮流', value: 'streetwear' },
-      { label: '新中式', value: 'new_chinese' },
-      { label: '极简', value: 'minimal' },
-      { label: '科技感', value: 'tech' }
-    ],
-    styleValue: 'streetwear',
-    palettes: [
-      { label: '织锦五彩', value: 'brocade_five' },
-      { label: '黑金', value: 'black_gold' },
-      { label: '青蓝', value: 'indigo_blue' },
-      { label: '自定义', value: 'custom' }
-    ],
-    paletteValue: 'brocade_five',
-    customPalette: '',
-    placements: [
-      { label: '胸前印花', value: 'chest' },
-      { label: '背部大图', value: 'back' },
-      { label: '局部装饰', value: 'partial' }
-    ],
-    placementValue: 'chest',
+    /* ---------- 可视化配色（主色必选 + 辅助色可选，单色/双色模式） ---------- */
+    swatches: QUICK_SWATCHES,
+    activeSlot: 'main',           // 当前编辑的颜色卡：main | aux
+    mainHex: '#a62b2b',
+    mainName: '织锦红',
+    auxOn: false,
+    auxHex: '#3a5a8c',
+    auxName: '靛蓝',
+    customOpen: false,            // 自由调色区默认折叠
+    h: 221, s: 60, l: 40,        // HSL 初始值（对应靛蓝）
+    liveHex: '#2950a3',           // JS 层预计算（=hslToHex(221,60,40)），视图层零算术
+    liveName: '靛蓝',
     // 参考纹样（素材库「以此为灵感」带入或本页选择，可移除）
     referenceMotifs: [],
     referenceMotifId: '',
@@ -119,17 +121,60 @@ Page({
   onPromptInput(e) {
     this.setData({ prompt: e.detail.value });
   },
-  onStyleChange(e) {
-    this.setData({ styleValue: e.detail.value });
+
+  /* ---------- 可视化配色 ---------- */
+  /** 点击主色卡：切换编辑目标 */
+  onSelectMain() {
+    if (this.data.activeSlot !== 'main') this.setData({ activeSlot: 'main' });
   },
-  onPaletteChange(e) {
-    this.setData({ paletteValue: e.detail.value });
+  /** 点击辅助色卡：未启用则启用并选中；已启用则切换为编辑目标 */
+  onSelectAux() {
+    if (!this.data.auxOn) {
+      this.setData({ auxOn: true, activeSlot: 'aux' });
+      return;
+    }
+    if (this.data.activeSlot !== 'aux') this.setData({ activeSlot: 'aux' });
   },
-  onCustomPaletteInput(e) {
-    this.setData({ customPalette: e.detail.value });
+  /** 关闭辅助色（回到单色模式），编辑目标回落主色 */
+  onDisableAux() {
+    this.setData({ auxOn: false, activeSlot: 'main' });
   },
-  onPlacementChange(e) {
-    this.setData({ placementValue: e.detail.value });
+  /** 点击快捷色块：应用到当前编辑的颜色卡 */
+  onSwatchTap(e) {
+    const idx = e.currentTarget.dataset.idx;
+    const sw = this.data.swatches[idx];
+    if (!sw) return;
+    this._applyColor(sw.hex, sw.name);
+  },
+  _applyColor(hex, name) {
+    if (this.data.activeSlot === 'aux') {
+      this.setData({ auxOn: true, auxHex: hex, auxName: name });
+    } else {
+      this.setData({ mainHex: hex, mainName: name });
+    }
+  },
+  /** 展开/折叠自由调色区 */
+  onToggleCustom() {
+    this.setData({ customOpen: !this.data.customOpen });
+  },
+  /* HSL 滑块（bindchanging+bindchange 双绑）：JS 层预计算 liveHex/liveName */
+  onHueChange(e) { this._syncLive({ h: e.detail.value }); },
+  onSatChange(e) { this._syncLive({ s: e.detail.value }); },
+  onLightChange(e) { this._syncLive({ l: e.detail.value }); },
+  _syncLive(patch) {
+    const h = patch.h !== undefined ? patch.h : this.data.h;
+    const s = patch.s !== undefined ? patch.s : this.data.s;
+    const l = patch.l !== undefined ? patch.l : this.data.l;
+    this.setData({
+      h: h, s: s, l: l,
+      liveHex: colorUtil.hslToHex(h, s, l),
+      liveName: colorUtil.colorNameFromHsl(h, s, l)
+    });
+  },
+  /** 「使用这个颜色」：调色结果应用到当前编辑的颜色卡 */
+  onUseLiveColor() {
+    this._applyColor(this.data.liveHex, this.data.liveName);
+    wx.showToast({ title: '已应用到' + (this.data.activeSlot === 'aux' ? '辅助色' : '主色'), icon: 'none' });
   },
 
   /* ---------- 参考纹样 ---------- */
@@ -180,10 +225,11 @@ Page({
     const fullPrompt = promptBuilder.buildPrompt({
       motifName: this.data.referenceMotifName,
       motifKeywords: this.data.referenceKeywords,
-      style: this.data.styleValue,
-      palette: this.data.paletteValue,
-      customPalette: this.data.customPalette,
-      placement: this.data.placementValue,
+      colors: {
+        mainName: this.data.mainName,
+        auxName: this.data.auxName,
+        dual: this.data.auxOn
+      },
       userPrompt: userPrompt
     });
 
@@ -204,7 +250,7 @@ Page({
     const body = {
       mode: 'text_to_image',
       prompt: fullPrompt,
-      style: this.data.styleValue,
+      style: 'custom',
       size: '1024x1024'
     };
     // 近似图生图（P1）：带参考纹样 ID，后端把该纹样关键词注入提示词
