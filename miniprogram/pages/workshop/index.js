@@ -1,7 +1,7 @@
 /**
  * pages/workshop —— AI 定制工坊（WBS 04 P0）
  * 表单：提示词（自由描述风格/部位/创意）/ 可视化配色（主色+可选辅色，快捷色板+HSL自由调色）/ 参考纹样
- * 生成链路：utils/prompt-builder.js v7.1 简化织锦纹样模板组装（全正向表述，用户主题置顶）
+ * 生成链路：utils/prompt-builder.js v6.1b 模板组装（v6.1 基线 + 内部纯色约束）
  *   → POST /api/generations { mode:'text_to_image', prompt, size:'1024x1024', referenceMotifId? }
  *   → setTimeout 链轮询 GET /api/generations/:id（间隔 2s、最长 150s）
  * 状态：idle / running / succeeded / failed（前端超时、额度不足等与失败同态，
