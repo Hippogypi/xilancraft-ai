@@ -14,6 +14,10 @@ assets_raw/
 # 微信开发者工具私有配置（含真实 AppID，不入库）
 miniprogram/project.private.config.json
 
+# 误以仓库根目录打开项目时开发者工具生成的配置（正解：导入 miniprogram/ 子目录）
+/project.config.json
+/project.private.config.json
+
 # 日志与杂项
 *.log
 .DS_Store
