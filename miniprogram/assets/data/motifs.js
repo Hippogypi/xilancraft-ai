@@ -6,7 +6,7 @@ module.exports = [
   {
     "id": "motif-48gou-001",
     "name": "四十八勾",
-    "patternCore": "同心菱形嵌套，四边折线对称勾连",
+    "patternCore": "中心一组嵌套菱形，四边各伸出多层直角折线层层勾连，围成菱形外框",
     "patternDesc": "以中心单菱形为核，勾状直角折线单元沿菱形四边层层向外放射勾连（八勾→十二勾→二十四勾→四十八勾递进），勾头回钩相扣，菱形骨架环环嵌套，呈向心对称的放射结构",
     "category": "traditional",
     "image": "/assets/motifs/motif-48gou.jpg",
@@ -23,7 +23,7 @@ module.exports = [
   {
     "id": "motif-yangque-001",
     "name": "阳雀花",
-    "patternCore": "左右相向的阶梯轮廓，夹持中央菱形链，平行色带贯穿",
+    "patternCore": "左右两侧各有一个由水平色带和阶梯折线构成的鸟形几何单元，两者相向排列；中央以三个纵向排列的菱形连接，鸟形下方各有一组嵌套菱形",
     "patternDesc": "几何化的阳雀（杜鹃鸟）居中，昂首、展翅、翘尾的侧面轮廓以直线与三角构成，常作左右双鸟相向对称布局，外围环绕菱形花枝框架",
     "category": "traditional",
     "image": "/assets/motifs/motif-yangquehua.jpg",
@@ -40,7 +40,7 @@ module.exports = [
   {
     "id": "motif-taitai-001",
     "name": "台台花",
-    "patternCore": "方正外框内：双立块居上、横条带居中的对称块面",
+    "patternCore": "方正块面横向连续排列，每个块面内上部两个竖立矩形、中部一条横向色带、下部对称小方块",
     "patternDesc": "极度几何化的虎头（双耳竖立、圆目、额间纹）与船形横条组合成菱形块面，多个菱形作连续排布，轮廓方正、块面对比强烈",
     "category": "traditional",
     "image": "/assets/motifs/motif-taitaihua.jpg",
@@ -57,7 +57,7 @@ module.exports = [
   {
     "id": "motif-mabi-001",
     "name": "马毕（马匹纹）",
-    "patternCore": "矩形躯干与锯齿背线的侧面轮廓组合，四腿为方正立柱",
+    "patternCore": "侧面站立的方形轮廓：矩形躯干、四条方正立柱腿，背线呈阶梯锯齿，鬃尾为排列的三角块",
     "patternDesc": "正侧面马形轮廓几何化：四腿方正、躯干为矩形、鬃毛与尾部呈锯齿三角，同一图形中并存正面双眼与侧面身姿的多维视角",
     "category": "traditional",
     "image": "/assets/motifs/motif-mabi.jpg",
@@ -74,7 +74,7 @@ module.exports = [
   {
     "id": "motif-yanqiang-001",
     "name": "岩墙花",
-    "patternCore": "大小方形色块嵌叠咬合",
+    "patternCore": "大小方形色块纵横嵌叠，横向条带与竖向块面交错咬合",
     "patternDesc": "大小不一的矩形石块纵横嵌叠、条垒咬合，形成秩序井然的砌石网格肌理，横向条带与竖向块面交错排布",
     "category": "traditional",
     "image": "/assets/motifs/motif-mabi.jpg",
@@ -91,7 +91,7 @@ module.exports = [
   {
     "id": "motif-fengmudan-001",
     "name": "凤穿牡丹",
-    "patternCore": "中轴辐射徽章：中心块面四周环绕卷曲条带与菱形点缀",
+    "patternCore": "中心一个菱形主体，两侧对称伸出卷曲条带，间以三角形和菱形小块点缀",
     "patternDesc": "凤鸟展翅穿行于牡丹花丛之间，花鸟呈中心环抱对称布局，卷曲的枝叶藤蔓以S形曲线填满间隙，画面绵密华丽",
     "category": "traditional",
     "image": "/assets/motifs/motif-fengmudan.jpg",
@@ -108,7 +108,7 @@ module.exports = [
   {
     "id": "motif-48gou-002",
     "name": "勾纹·像素重组",
-    "patternCore": "像素方块组成的菱形放射徽章",
+    "patternCore": "方形像素块沿菱形骨架逐层排列，由内向外渐次展开",
     "patternDesc": "将四十八勾的勾状折线转化为渐变像素方块矩阵，菱形阵列层层勾连向外扩展，以像素网格呈现放射秩序感",
     "category": "modern",
     "image": "",
@@ -125,7 +125,7 @@ module.exports = [
   {
     "id": "motif-yangque-002",
     "name": "阳雀·折纸几何",
-    "patternCore": "相向三角块与斜切条带的对称拼合",
+    "patternCore": "两侧相向的三角块面与斜切色带，构成展翅动势的鸟形单元",
     "patternDesc": "以折纸式三角色块与锐利切线拼出阳雀昂首展翅翘尾的动势轮廓，形面简洁、负空间清晰",
     "category": "modern",
     "image": "",
@@ -142,7 +142,7 @@ module.exports = [
   {
     "id": "motif-she-002",
     "name": "蛇花·回旋单线",
-    "patternCore": "一根连续粗线勾出的回旋环形",
+    "patternCore": "一根连续粗线首尾相接勾出回旋环形，线宽均匀",
     "patternDesc": "一根连续单线勾勒小蛇首尾相接的回旋环，二方连续延展、环环相扣，线宽均匀、留白疏朗",
     "category": "modern",
     "image": "",
@@ -159,7 +159,7 @@ module.exports = [
   {
     "id": "motif-yanqiang-002",
     "name": "岩墙·砌块渐变",
-    "patternCore": "大小递变的方形色块嵌叠",
+    "patternCore": "方形色带由大到小逐层嵌叠",
     "patternDesc": "大小渐变的色块矩阵如砌石般条垒咬合，保留横向条带节奏并叠加明度渐变，形成立体砌面肌理",
     "category": "modern",
     "image": "",
